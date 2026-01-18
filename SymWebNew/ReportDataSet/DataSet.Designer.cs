@@ -6391,11 +6391,7 @@ namespace SymWebUI.ReportDataSet {
             
             private global::System.Data.DataColumn columnTotalPF;
             
-            private global::System.Data.DataColumn columnEmployeePFValue;
-            
-            private global::System.Data.DataColumn columnEmployeerPFValue;
-            
-            private global::System.Data.DataColumn columnTotalEmployeeValue;
+            private global::System.Data.DataColumn columnProjectName;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
@@ -6456,25 +6452,9 @@ namespace SymWebUI.ReportDataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn EmployeePFValueColumn {
+            public global::System.Data.DataColumn ProjectNameColumn {
                 get {
-                    return this.columnEmployeePFValue;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn EmployeerPFValueColumn {
-                get {
-                    return this.columnEmployeerPFValue;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn TotalEmployeeValueColumn {
-                get {
-                    return this.columnTotalEmployeeValue;
+                    return this.columnProjectName;
                 }
             }
             
@@ -6515,15 +6495,13 @@ namespace SymWebUI.ReportDataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public dtWPPFReportRow AdddtWPPFReportRow(string Code, string FiscalPeriod, string TotalPF, decimal EmployeePFValue, decimal EmployeerPFValue, decimal TotalEmployeeValue) {
+            public dtWPPFReportRow AdddtWPPFReportRow(string Code, string FiscalPeriod, string TotalPF, string ProjectName) {
                 dtWPPFReportRow rowdtWPPFReportRow = ((dtWPPFReportRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Code,
                         FiscalPeriod,
                         TotalPF,
-                        EmployeePFValue,
-                        EmployeerPFValue,
-                        TotalEmployeeValue};
+                        ProjectName};
                 rowdtWPPFReportRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowdtWPPFReportRow);
                 return rowdtWPPFReportRow;
@@ -6549,9 +6527,7 @@ namespace SymWebUI.ReportDataSet {
                 this.columnCode = base.Columns["Code"];
                 this.columnFiscalPeriod = base.Columns["FiscalPeriod"];
                 this.columnTotalPF = base.Columns["TotalPF"];
-                this.columnEmployeePFValue = base.Columns["EmployeePFValue"];
-                this.columnEmployeerPFValue = base.Columns["EmployeerPFValue"];
-                this.columnTotalEmployeeValue = base.Columns["TotalEmployeeValue"];
+                this.columnProjectName = base.Columns["ProjectName"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -6563,12 +6539,8 @@ namespace SymWebUI.ReportDataSet {
                 base.Columns.Add(this.columnFiscalPeriod);
                 this.columnTotalPF = new global::System.Data.DataColumn("TotalPF", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotalPF);
-                this.columnEmployeePFValue = new global::System.Data.DataColumn("EmployeePFValue", typeof(decimal), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnEmployeePFValue);
-                this.columnEmployeerPFValue = new global::System.Data.DataColumn("EmployeerPFValue", typeof(decimal), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnEmployeerPFValue);
-                this.columnTotalEmployeeValue = new global::System.Data.DataColumn("TotalEmployeeValue", typeof(decimal), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnTotalEmployeeValue);
+                this.columnProjectName = new global::System.Data.DataColumn("ProjectName", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnProjectName);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -6706,8 +6678,6 @@ namespace SymWebUI.ReportDataSet {
             
             private global::System.Data.DataColumn columnProjectName;
             
-            private global::System.Data.DataColumn columnDistributionDate;
-            
             private global::System.Data.DataColumn columnTotalPF;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -6761,14 +6731,6 @@ namespace SymWebUI.ReportDataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn DistributionDateColumn {
-                get {
-                    return this.columnDistributionDate;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public global::System.Data.DataColumn TotalPFColumn {
                 get {
                     return this.columnTotalPF;
@@ -6812,12 +6774,11 @@ namespace SymWebUI.ReportDataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public dtWPPFProfitDistributionRow AdddtWPPFProfitDistributionRow(string Code, string ProjectName, System.DateTime DistributionDate, decimal TotalPF) {
+            public dtWPPFProfitDistributionRow AdddtWPPFProfitDistributionRow(string Code, string ProjectName, decimal TotalPF) {
                 dtWPPFProfitDistributionRow rowdtWPPFProfitDistributionRow = ((dtWPPFProfitDistributionRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Code,
                         ProjectName,
-                        DistributionDate,
                         TotalPF};
                 rowdtWPPFProfitDistributionRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowdtWPPFProfitDistributionRow);
@@ -6843,7 +6804,6 @@ namespace SymWebUI.ReportDataSet {
             internal void InitVars() {
                 this.columnCode = base.Columns["Code"];
                 this.columnProjectName = base.Columns["ProjectName"];
-                this.columnDistributionDate = base.Columns["DistributionDate"];
                 this.columnTotalPF = base.Columns["TotalPF"];
             }
             
@@ -6854,8 +6814,6 @@ namespace SymWebUI.ReportDataSet {
                 base.Columns.Add(this.columnCode);
                 this.columnProjectName = new global::System.Data.DataColumn("ProjectName", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnProjectName);
-                this.columnDistributionDate = new global::System.Data.DataColumn("DistributionDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnDistributionDate);
                 this.columnTotalPF = new global::System.Data.DataColumn("TotalPF", typeof(decimal), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnTotalPF);
             }
@@ -12668,49 +12626,17 @@ namespace SymWebUI.ReportDataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public decimal EmployeePFValue {
+            public string ProjectName {
                 get {
                     try {
-                        return ((decimal)(this[this.tabledtWPPFReport.EmployeePFValueColumn]));
+                        return ((string)(this[this.tabledtWPPFReport.ProjectNameColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'EmployeePFValue\' in table \'dtWPPFReport\' is DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("The value for column \'ProjectName\' in table \'dtWPPFReport\' is DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tabledtWPPFReport.EmployeePFValueColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public decimal EmployeerPFValue {
-                get {
-                    try {
-                        return ((decimal)(this[this.tabledtWPPFReport.EmployeerPFValueColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'EmployeerPFValue\' in table \'dtWPPFReport\' is DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tabledtWPPFReport.EmployeerPFValueColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public decimal TotalEmployeeValue {
-                get {
-                    try {
-                        return ((decimal)(this[this.tabledtWPPFReport.TotalEmployeeValueColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'TotalEmployeeValue\' in table \'dtWPPFReport\' is DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tabledtWPPFReport.TotalEmployeeValueColumn] = value;
+                    this[this.tabledtWPPFReport.ProjectNameColumn] = value;
                 }
             }
             
@@ -12752,38 +12678,14 @@ namespace SymWebUI.ReportDataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsEmployeePFValueNull() {
-                return this.IsNull(this.tabledtWPPFReport.EmployeePFValueColumn);
+            public bool IsProjectNameNull() {
+                return this.IsNull(this.tabledtWPPFReport.ProjectNameColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetEmployeePFValueNull() {
-                this[this.tabledtWPPFReport.EmployeePFValueColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsEmployeerPFValueNull() {
-                return this.IsNull(this.tabledtWPPFReport.EmployeerPFValueColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetEmployeerPFValueNull() {
-                this[this.tabledtWPPFReport.EmployeerPFValueColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsTotalEmployeeValueNull() {
-                return this.IsNull(this.tabledtWPPFReport.TotalEmployeeValueColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetTotalEmployeeValueNull() {
-                this[this.tabledtWPPFReport.TotalEmployeeValueColumn] = global::System.Convert.DBNull;
+            public void SetProjectNameNull() {
+                this[this.tabledtWPPFReport.ProjectNameColumn] = global::System.Convert.DBNull;
             }
         }
         
@@ -12836,23 +12738,6 @@ namespace SymWebUI.ReportDataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public System.DateTime DistributionDate {
-                get {
-                    try {
-                        return ((global::System.DateTime)(this[this.tabledtWPPFProfitDistribution.DistributionDateColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'DistributionDate\' in table \'dtWPPFProfitDistribution\' is DB" +
-                                "Null.", e);
-                    }
-                }
-                set {
-                    this[this.tabledtWPPFProfitDistribution.DistributionDateColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public decimal TotalPF {
                 get {
                     try {
@@ -12889,18 +12774,6 @@ namespace SymWebUI.ReportDataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public void SetProjectNameNull() {
                 this[this.tabledtWPPFProfitDistribution.ProjectNameColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsDistributionDateNull() {
-                return this.IsNull(this.tabledtWPPFProfitDistribution.DistributionDateColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetDistributionDateNull() {
-                this[this.tabledtWPPFProfitDistribution.DistributionDateColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

@@ -18,8 +18,8 @@
     <Shape ID="DesignTable:dtApplicantLanguage" ZOrder="5" X="-2" Y="-2" Height="28" Width="158" AdapterExpanded="true" DataTableExpanded="false" OldAdapterHeight="0" OldDataTableHeight="86" SplitterPosition="24" />
     <Shape ID="DesignTable:dtApplicantEmployeementHistory" ZOrder="4" X="1622" Y="3" Height="28" Width="158" AdapterExpanded="true" DataTableExpanded="false" OldAdapterHeight="0" OldDataTableHeight="406" SplitterPosition="24" />
     <Shape ID="DesignTable:EmployeeInfo" ZOrder="3" X="191" Y="50" Height="28" Width="189" AdapterExpanded="true" DataTableExpanded="false" OldAdapterHeight="0" OldDataTableHeight="252" SplitterPosition="24" />
-    <Shape ID="DesignTable:dtWPPFReport" ZOrder="2" X="385" Y="48" Height="28" Width="152" AdapterExpanded="true" DataTableExpanded="false" OldAdapterHeight="0" OldDataTableHeight="139" SplitterPosition="24" />
-    <Shape ID="DesignTable:dtWPPFProfitDistribution" ZOrder="1" X="568" Y="92" Height="28" Width="215" AdapterExpanded="true" DataTableExpanded="false" OldAdapterHeight="0" OldDataTableHeight="101" SplitterPosition="24" />
+    <Shape ID="DesignTable:dtWPPFReport" ZOrder="2" X="385" Y="48" Height="28" Width="152" AdapterExpanded="true" DataTableExpanded="false" OldAdapterHeight="0" OldDataTableHeight="101" SplitterPosition="24" />
+    <Shape ID="DesignTable:dtWPPFProfitDistribution" ZOrder="1" X="545" Y="47" Height="28" Width="215" AdapterExpanded="true" DataTableExpanded="false" OldAdapterHeight="0" OldDataTableHeight="82" SplitterPosition="24" />
   </Shapes>
   <Connectors />
 </DiagramLayout>

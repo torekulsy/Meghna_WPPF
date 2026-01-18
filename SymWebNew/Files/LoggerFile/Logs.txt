@@ -132,3 +132,8 @@ FROM WPPFHeader pfd
 Invalid column name 'BWWF'.
    at SymRepository.WPPF.WPPFRepo.SelectAll() in d:\Meghna_WPPF\ShampanPF\SymRepository\WPPF\WPPFRepo.cs:line 75
    at SymWebUI.Areas.WPPF.Controllers.WPPFController.AllWPPFReport(PFHeaderVM vm) in d:\Meghna_WPPF\ShampanPF\SymWebNew\Areas\WPPF\Controllers\WPPFController.cs:line 318
+
+2026-01-15 17:19:53 +06:00
+ Source : DownloadAllWPPFReport , Method : WPPFController
+Object reference not set to an instance of an object.
+   at SymWebUI.Areas.WPPF.Controllers.WPPFController.DownloadAllWPPFReport() in d:\Meghna_WPPF\SymWebNew\Areas\WPPF\Controllers\WPPFController.cs:line 492

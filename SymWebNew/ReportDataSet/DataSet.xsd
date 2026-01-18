@@ -283,9 +283,7 @@
               <xs:element name="Code" msprop:Generator_ColumnVarNameInTable="columnCode" msprop:Generator_ColumnPropNameInRow="Code" msprop:Generator_ColumnPropNameInTable="CodeColumn" msprop:Generator_UserColumnName="Code" type="xs:string" minOccurs="0" />
               <xs:element name="FiscalPeriod" msprop:Generator_ColumnVarNameInTable="columnFiscalPeriod" msprop:Generator_ColumnPropNameInRow="FiscalPeriod" msprop:Generator_ColumnPropNameInTable="FiscalPeriodColumn" msprop:Generator_UserColumnName="FiscalPeriod" type="xs:string" minOccurs="0" />
               <xs:element name="TotalPF" msprop:Generator_ColumnVarNameInTable="columnTotalPF" msprop:Generator_ColumnPropNameInRow="TotalPF" msprop:Generator_ColumnPropNameInTable="TotalPFColumn" msprop:Generator_UserColumnName="TotalPF" type="xs:string" minOccurs="0" />
-              <xs:element name="EmployeePFValue" msprop:Generator_ColumnVarNameInTable="columnEmployeePFValue" msprop:Generator_ColumnPropNameInRow="EmployeePFValue" msprop:Generator_ColumnPropNameInTable="EmployeePFValueColumn" msprop:Generator_UserColumnName="EmployeePFValue" type="xs:decimal" minOccurs="0" />
-              <xs:element name="EmployeerPFValue" msprop:Generator_ColumnVarNameInTable="columnEmployeerPFValue" msprop:Generator_ColumnPropNameInRow="EmployeerPFValue" msprop:Generator_ColumnPropNameInTable="EmployeerPFValueColumn" msprop:Generator_UserColumnName="EmployeerPFValue" type="xs:decimal" minOccurs="0" />
-              <xs:element name="TotalEmployeeValue" msprop:Generator_ColumnVarNameInTable="columnTotalEmployeeValue" msprop:Generator_ColumnPropNameInRow="TotalEmployeeValue" msprop:Generator_ColumnPropNameInTable="TotalEmployeeValueColumn" msprop:Generator_UserColumnName="TotalEmployeeValue" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ProjectName" msprop:Generator_ColumnVarNameInTable="columnProjectName" msprop:Generator_ColumnPropNameInRow="ProjectName" msprop:Generator_ColumnPropNameInTable="ProjectNameColumn" msprop:Generator_UserColumnName="ProjectName" type="xs:string" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -294,7 +292,6 @@
             <xs:sequence>
               <xs:element name="Code" msprop:Generator_ColumnVarNameInTable="columnCode" msprop:Generator_ColumnPropNameInRow="Code" msprop:Generator_ColumnPropNameInTable="CodeColumn" msprop:Generator_UserColumnName="Code" type="xs:string" minOccurs="0" />
               <xs:element name="ProjectName" msprop:Generator_ColumnVarNameInTable="columnProjectName" msprop:Generator_ColumnPropNameInRow="ProjectName" msprop:Generator_ColumnPropNameInTable="ProjectNameColumn" msprop:Generator_UserColumnName="ProjectName" type="xs:string" minOccurs="0" />
-              <xs:element name="DistributionDate" msprop:Generator_ColumnVarNameInTable="columnDistributionDate" msprop:Generator_ColumnPropNameInRow="DistributionDate" msprop:Generator_ColumnPropNameInTable="DistributionDateColumn" msprop:Generator_UserColumnName="DistributionDate" type="xs:dateTime" minOccurs="0" />
               <xs:element name="TotalPF" msprop:Generator_ColumnVarNameInTable="columnTotalPF" msprop:Generator_ColumnPropNameInRow="TotalPF" msprop:Generator_ColumnPropNameInTable="TotalPFColumn" msprop:Generator_UserColumnName="TotalPF" type="xs:decimal" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>

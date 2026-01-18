@@ -21,11 +21,7 @@
                 <th class="center">Code</th>
                 <th class="center">Project</th>
                 <th class="center">Fiscal Period</th>
-                <th class="center">Total Profit</th>
-                <th class="center">Distributed Value</th>
-                <th class="center">WPPF Value</th>
-                @*<th class="center">WWF Value</th>
-                <th class="center">BWWF Value</th>*@
+                <th class="center">WPPF/Total Profit</th>
                 <th class="center">Post</th>
 
             </tr>
@@ -69,56 +65,36 @@
                                 "sWidth": "16%",
                                 "sClass": "center",
                                 "fnRender": function (oObj) {
-                                    return ''
-
-                                        @*+ '<a title="Click on for Details" style="text-decoration:none;"    href=\"/@ViewBag.TransType/ProfitDistribution?code=' + oObj.aData[0] + '\"  class="sym-btn-detail-row"></a>'*@
-                                         @*+ '<a title="Click on for Details" style="text-decoration:none;" href="/@ViewBag.TransType/WPPF/ProfitDistribution" data-Id="' + oObj.aData[0] +'\" class="sym-btn-detail-row"></a>'*@
-                                        + '<a title="Click on for Details" style="text-decoration:none;" href="/WPPF/WPPF/ProfitDistribution?code=' + oObj.aData[1] + '" class="sym-btn-detail-row"></a>'
+                                    if (oObj.aData[5] == "Yes") {
+                                        return ''
+     + '<a title="Click on for Details" style="text-decoration:none;" href="/WPPF/WPPF/ProfitDistribution?code=' + oObj.aData[1] + '" class="sym-btn-detail-row"></a>'
 
 
-                                        + '<a title="Click on for Post" data-url="/WPPF/WPPF/Post"  onclick=btnPostNew(this);  data-Id="' + oObj.aData[0] + "~" + oObj.aData[7] + '\" class="sym-btn-post-row"></a>'
-                                    ;
+     + '<a title="Click on for Post" data-url="/WPPF/WPPF/Post"  onclick=btnPostNew(this);  data-Id="' + oObj.aData[0] + "~" + oObj.aData[5] + '\" class="sym-btn-post-row" style="opacity:0.45;pointer-events:none;cursor:default;"></a>'
+                                        ;
+                                    }
+                                    else {
+                                        return ''
+    + '<a title="Click on for Details" style="text-decoration:none;" href="/WPPF/WPPF/ProfitDistribution?code=' + oObj.aData[1] + '" class="sym-btn-detail-row"></a>'
+
+
+    + '<a title="Click on for Post" data-url="/WPPF/WPPF/Post"  onclick=btnPostNew(this);  data-Id="' + oObj.aData[0] + "~" + oObj.aData[5] + '\" class="sym-btn-post-row"></a>'
+                                        ;
+                                    }
+
                                 }
                             }
                             , { "sName": "Code", "sWidth": "10%" }
                             , { "sName": "ProjectName", "sWidth": "10%" }
                             , { "sName": "FiscalPeriod", "sWidth": "10%" }
-                             , {
-                                 "sName": "Profit",
-                                 "sWidth": "10%", "sClass": "right",
-                                 "fnRender": function (oObj) {
-                                     return formatNumberWithCommas(oObj.aData[4]);
-                                 }
-                             }
-                           , {
-                               "sName": "DistributedValue",
-                               "sWidth": "10%", "sClass": "right",
-                               "fnRender": function (oObj) {
-                                   return formatNumberWithCommas(oObj.aData[5]);
-                               }
-                           }
                             , {
-                                "sName": "EmployeePFValue",
+                                "sName": "TotalPF",
                                 "sWidth": "10%", "sClass": "right",
                                 "fnRender": function (oObj) {
-                                    return formatNumberWithCommas(oObj.aData[6]);
+                                    return formatNumberWithCommas(oObj.aData[4]);
                                 }
-                            }
-                          //  , {
-                          //      "sName": "EmployeerPFValue",
-                          //      "sWidth": "10%", "sClass": "right",
-                          //      "fnRender": function (oObj) {
-                          //          return formatNumberWithCommas(oObj.aData[7]);
-                          //      }
-                          //  }
-                          //, {
-                          //    "sName": "TotalEmployeeValue",
-                          //    "sWidth": "10%", "sClass": "right",
-                          //    "fnRender": function (oObj) {
-                          //        return formatNumberWithCommas(oObj.aData[8]);
-                          //    }
-                          //}                         
-                            , { "sName": "Post", "sWidth": "12%" }
+                            }                       
+                            , { "sName": "Post", "sWidth": "12%", "sClass": "center" }
             ]
         });
 

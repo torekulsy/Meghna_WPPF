@@ -93,7 +93,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
             Func<PFHeaderVM, string> orderingFunction = (c =>
                 sortColumnIndex == 1 && isSortable_1 ? c.Code :
                 sortColumnIndex == 2 && isSortable_2 ? c.ProjectName :
-                sortColumnIndex == 3 && isSortable_3 ? c.PeriodStart :
+                sortColumnIndex == 3 && isSortable_3 ? c.FiscalPeriod :
                 sortColumnIndex == 4 && isSortable_4 ? c.TotalPF.ToString() :
                 sortColumnIndex == 5 && isSortable_5 ? c.Post.ToString() :
                
@@ -113,10 +113,6 @@ namespace SymWebUI.Areas.WPPF.Controllers
                     , c.ProjectName
                     , c.FiscalPeriod
                     , c.TotalPF.ToString()
-                    , c.DistributedValue.ToString()
-                    , c.EmployeePFValue.ToString()
-                    //, c.EmployeerPFValue.ToString()
-                    //, c.TotalEmployeeValue.ToString()
                     , c.Post ? "Yes" : "No"
                  };
             return Json(new
@@ -162,7 +158,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
 
                 WPPFRepo _repo = new WPPFRepo();
-                string[] conditionFields = { "b.code" };
+                string[] conditionFields = { "b.Code" };
                 string[] conditionValues = { code.ToString() };
 
 
@@ -197,14 +193,12 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 var isSearchable2 = Convert.ToBoolean(Request["bSearchable_2"]);
                 var isSearchable3 = Convert.ToBoolean(Request["bSearchable_3"]);
                 var isSearchable4 = Convert.ToBoolean(Request["bSearchable_4"]);
-                var isSearchable5 = Convert.ToBoolean(Request["bSearchable_5"]);
                 filteredData = getAllData
                     .Where(c =>
                           isSearchable1 && c.Code.ToLower().Contains(param.sSearch.ToLower())
                        || isSearchable2 && c.ProjectName.ToLower().Contains(param.sSearch.ToLower())
-                       || isSearchable3 && c.FiscalPeriod.ToLower().Contains(param.sSearch.ToLower())
-                       || isSearchable4 && c.TotalPF.ToString().ToLower().Contains(param.sSearch.ToLower())
-                       || isSearchable5 && c.Post.ToString().ToLower().Contains(param.sSearch.ToLower())
+                       || isSearchable3 && c.TotalPF.ToString().ToLower().Contains(param.sSearch.ToLower())
+                       || isSearchable4 && c.Post.ToString().ToLower().Contains(param.sSearch.ToLower())
                     );
             }
             else
@@ -216,15 +210,13 @@ namespace SymWebUI.Areas.WPPF.Controllers
             var isSortable_2 = Convert.ToBoolean(Request["bSortable_2"]);
             var isSortable_3 = Convert.ToBoolean(Request["bSortable_3"]);
             var isSortable_4 = Convert.ToBoolean(Request["bSortable_4"]);
-            var isSortable_5 = Convert.ToBoolean(Request["bSortable_5"]);
 
             var sortColumnIndex = Convert.ToInt32(Request["iSortCol_0"]);
             Func<PFHeaderVM, string> orderingFunction = (c =>
                 sortColumnIndex == 1 && isSortable_1 ? c.Code :
                 sortColumnIndex == 2 && isSortable_2 ? c.ProjectName :
-                sortColumnIndex == 3 && isSortable_3 ? c.FiscalPeriod :
-                sortColumnIndex == 4 && isSortable_4 ? c.TotalPF.ToString() :
-                sortColumnIndex == 5 && isSortable_5 ? c.Post.ToString() :
+                sortColumnIndex == 3 && isSortable_3 ? c.TotalPF.ToString() :
+                sortColumnIndex == 4 && isSortable_4 ? c.Post.ToString() :
                                                            "");
 
             var sortDirection = Request["sSortDir_0"]; // asc or desc
@@ -239,7 +231,6 @@ namespace SymWebUI.Areas.WPPF.Controllers
                  //c.Id.ToString()
                  c.Code
                 , c.ProjectName
-                , c.DistributionDate
                 ,c.TotalPF.ToString()
                 , c.Post?"Yes":"No"
             };
@@ -485,24 +476,50 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 dt = Ordinary.ListToDataTable(getAllData.ToList());
 
                 // Remove unwanted columns
-                var toRemove = new string[]
-                {
-                    "Id","FiscalYearDetailId","ProjectId","PeriodStart","Post","Remarks","IsActive","IsArchive","CreatedBy","CreatedAt","CreatedFrom","LastUpdateBy","LastUpdateAt",
-                    "LastUpdateFrom","Operation","DistributionDate","PeriodEnd","TransType","ProjectName","TotalEmployerValue"
-                };
+                string[] toRemove =
+{
+    "Id",
+    "FiscalYearDetailId",
+    "DistributionDate",
+    "EmployeePFValue",
+    "EmployeerPFValue",
+    "TotalEmployeeValue",
+    "Post",
+    "Remarks",
+    "IsActive",
+    "IsArchive",
+    "CreatedBy",
+    "CreatedAt",
+    "CreatedFrom",
+    "LastUpdateBy",
+    "LastUpdateAt",
+    "LastUpdateFrom",
+    "TotalEmployerValue",
+    "Operation",
+    "ProjectId",
+    "PeriodStart",
+    "PeriodEnd",
+    "TransType",
+    "DistributedValue"
+};
+
+
                 foreach (string col in toRemove)
                 {
                     if (dt.Columns.Contains(col))
                         dt.Columns.Remove(col);
                 }
 
-                // Rename columns for Excel
-                dt.Columns["Code"].ColumnName = "Code";
-                dt.Columns["FiscalPeriod"].ColumnName = "Period Name";
-                dt.Columns["TotalPF"].ColumnName = "Total Profit";
-                dt.Columns["EmployeePFValue"].ColumnName = "WPPF Value";
-                dt.Columns["EmployeerPFValue"].ColumnName = "WWF Value";
-                dt.Columns["TotalEmployeeValue"].ColumnName = "BWWF Value";
+                // Rename safely
+                if (dt.Columns.Contains("Code"))
+                    dt.Columns["Code"].ColumnName = "Code";
+                if (dt.Columns.Contains("ProjectName"))
+                    dt.Columns["ProjectName"].ColumnName = "Project Name";
+                if (dt.Columns.Contains("FiscalPeriod"))
+                    dt.Columns["FiscalPeriod"].ColumnName = "Fiscal Period";
+
+                if (dt.Columns.Contains("TotalPF"))
+                    dt.Columns["TotalPF"].ColumnName = "WPPF/Total Profit";
 
                 #endregion
 
@@ -698,9 +715,30 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 // Remove unwanted columns
                 var toRemove = new string[]
                         {
-                            "Id","WPPFHeaderId","EmployeeId","IsArchive","CreatedBy","CreatedAt","CreatedFrom",
-                            "LastUpdateBy","LastUpdateAt","LastUpdateFrom","FiscalYearDetailId","FiscalPeriod","EmployeePFValue","EmployeerPFValue","TotalEmployeeValue","Post","Remarks","IsActive",
-                            "TotalEmployerValue","Operation","ProjectId","PeriodStart","PeriodEnd","TransType"
+                            "Id",
+    "FiscalYearDetailId",
+    "DistributionDate",
+    "EmployeePFValue",
+    "EmployeerPFValue",
+    "TotalEmployeeValue",
+    "Post",
+    "Remarks",
+    "IsActive",
+    "IsArchive",
+    "CreatedBy",
+    "CreatedAt",
+    "CreatedFrom",
+    "LastUpdateBy",
+    "LastUpdateAt",
+    "LastUpdateFrom",
+    "TotalEmployerValue",
+    "Operation",
+    "ProjectId",
+    "PeriodStart",
+    "PeriodEnd",
+    "TransType",
+    "DistributedValue",
+    "FiscalPeriod"
                         };
 
                 foreach (string col in toRemove)
@@ -710,9 +748,8 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 }
 
                 // Rename columns for Excel
-                dt.Columns["Code"].ColumnName = "WPPF Code";
+                dt.Columns["Code"].ColumnName = "Code";
                 dt.Columns["ProjectName"].ColumnName = "Employee Name";
-                dt.Columns["DistributionDate"].ColumnName = "Distribution Date";
                 dt.Columns["TotalPF"].ColumnName = "Employee Profit";
 
                 #endregion

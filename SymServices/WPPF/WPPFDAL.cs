@@ -74,13 +74,8 @@ pfd.Id
 ,fyd.PeriodName
 ,fyd.PeriodStart
 ,pfd.Post 
-,pfd.TotalProfitValue TotalPF
-,pfd.TotalProfitValue *.05 as DistributedValue
-,pfd.WPPFValue
-
-
-
-FROM WPPFHeader pfd
+,pfd.EmployeePFValue TotalPF
+FROM PFHeader pfd
 ";
 
                 sqlText += "  LEFT OUTER JOIN [dbo].Project p ON pfd.ProjectId=p.Id";
@@ -135,11 +130,7 @@ FROM WPPFHeader pfd
                     vm.FiscalPeriod = dr["PeriodName"].ToString();
                     vm.PeriodStart = dr["PeriodStart"].ToString();
                     vm.TotalPF = Convert.ToDecimal(dr["TotalPF"]);
-                    vm.DistributedValue = Convert.ToDecimal(dr["DistributedValue"].ToString());
                     vm.Post = Convert.ToBoolean(dr["Post"]);
-                    vm.EmployeePFValue = Convert.ToDecimal(dr["WPPFValue"]);
-                    //vm.EmployeerPFValue = Convert.ToDecimal(dr["WWFValue"]);
-                    //vm.TotalEmployeeValue = Convert.ToDecimal(dr["BWWF"]);
 
                     VMs.Add(vm);
                 }
@@ -209,9 +200,9 @@ FROM WPPFHeader pfd
                 string hrmDB = _dbsqlConnection.GetConnection().Database;
                 #region sql statement
                 #region SqlText
-                sqlText = @"Select a.Id, b.Code As WPPFCode, c.Name, a.DistributionDate, a.EmployeeProfit, a.Post  From WPPFProfitDistribution a";
+                sqlText = @"Select a.Id, b.Code As WPPFCode, c.Name, a.EmployeePFValue, a.Post  From PFDetails a";
 
-                sqlText += "  left join WPPFHeader b on a.WPPFHeaderId = b.Id";
+                sqlText += "  left join PFHeader b on a.PFHeaderId = b.Id";
                 sqlText += "  left join EmployeeInfo c on a.EmployeeId = c.Id";
                 sqlText += @" WHERE  1=1 AND a.IsArchive = 0 ";
                 string cField = "";
@@ -228,7 +219,6 @@ FROM WPPFHeader pfd
                         sqlText += " AND " + conditionFields[i] + "=@" + cField;
                     }
                 }
-                //  sqlText += "  GROUP BY p.Name,p.Id, pfd.FiscalYearDetailId, fyd.PeriodName, fyd.PeriodStart, fyd.PeriodEnd, pfd.Post ";
                 sqlText += " ORDER BY c.Name";
 
                 #endregion SqlText
@@ -257,8 +247,7 @@ FROM WPPFHeader pfd
                     vm.Id = Convert.ToInt32(dr["Id"]);
                     vm.Code = dr["WPPFCode"].ToString();
                     vm.ProjectName = dr["Name"].ToString();
-                    vm.DistributionDate = Ordinary.StringToDate(dr["DistributionDate"].ToString());
-                    vm.TotalPF = Convert.ToDecimal(dr["EmployeeProfit"]);
+                    vm.TotalPF = Convert.ToDecimal(dr["EmployeePFValue"]);
                     vm.Post = Convert.ToBoolean(dr["Post"]);
 
                     VMs.Add(vm);
@@ -307,10 +296,10 @@ FROM WPPFHeader pfd
 
                 transaction = Vtransaction ?? currConn.BeginTransaction();
 
-                decimal distValue = TotalProfit.Value * 0.05m;
-                decimal disWPPF = distValue * 0.8m;
-                decimal disWFF = distValue * 0.1m;
-                decimal disWWF = distValue * 0.1m;
+                //decimal distValue = TotalProfit.Value * 0.05m;
+                //decimal disWPPF = distValue * 0.8m;
+                //decimal disWFF = distValue * 0.1m;
+                //decimal disWWF = distValue * 0.1m;
 
                 string distributionDate;
                 string fySql = @"
@@ -320,7 +309,7 @@ FROM WPPFHeader pfd
 
                 using (SqlCommand fyCmd = new SqlCommand(fySql, currConn, transaction))
                 {
-                    fyCmd.Parameters.AddWithValue("@FiscalYearDetailId", FiscalYearDetailId);
+                    fyCmd.Parameters.AddWithValue("@FiscalYearDetailId", Convert.ToInt32(FiscalYearDetailId));
                     object obj = fyCmd.ExecuteScalar();
                     distributionDate = obj == null || obj == DBNull.Value ? DateTime.Now.ToString() : obj.ToString();
                 }
@@ -330,13 +319,12 @@ FROM WPPFHeader pfd
                
                 string checkPostSql = @"
             SELECT Post
-            FROM WPPFHeader
-            WHERE FiscalYearDetailId = @FiscalYearDetailId
-            AND Year = @Year";
+            FROM PFHeader
+            WHERE FiscalYearDetailId = @FiscalYearDetailId";
 
                 SqlCommand checkPostCmd = new SqlCommand(checkPostSql, currConn, transaction);
-                checkPostCmd.Parameters.AddWithValue("@FiscalYearDetailId", FiscalYearDetailId);
-                checkPostCmd.Parameters.AddWithValue("@Year", FiscalYear);
+                checkPostCmd.Parameters.AddWithValue("@FiscalYearDetailId", Convert.ToInt32(FiscalYearDetailId));
+                //checkPostCmd.Parameters.AddWithValue("@Year", FiscalYear);
 
                 object postStatus = checkPostCmd.ExecuteScalar();
                 bool isPostExists = postStatus != null && Convert.ToInt32(postStatus) == 1;
@@ -345,7 +333,7 @@ FROM WPPFHeader pfd
                 {
                    
                     ret[0] = "Fail";
-                    ret[1] = "WPPF already posted for this fiscal year.";
+                    ret[1] = "WPPF already posted for this fiscal period.";
                     return ret;
                 }
                 else
@@ -353,14 +341,14 @@ FROM WPPFHeader pfd
                     
                     string checkExistingDataSql = @"
                 SELECT Id
-                FROM WPPFHeader
+                FROM PFHeader
                 WHERE FiscalYearDetailId = @FiscalYearDetailId
-                AND Year = @Year
+               
                 AND Post = 0";
 
                     SqlCommand checkExistingDataCmd = new SqlCommand(checkExistingDataSql, currConn, transaction);
-                    checkExistingDataCmd.Parameters.AddWithValue("@FiscalYearDetailId", FiscalYearDetailId);
-                    checkExistingDataCmd.Parameters.AddWithValue("@Year", FiscalYear);
+                    checkExistingDataCmd.Parameters.AddWithValue("@FiscalYearDetailId", Convert.ToInt32(FiscalYearDetailId));
+                    //checkExistingDataCmd.Parameters.AddWithValue("@Year", FiscalYear);
 
                     object existingDataId = checkExistingDataCmd.ExecuteScalar();
                     int id = existingDataId != null ? Convert.ToInt32(existingDataId) : 0;
@@ -369,7 +357,7 @@ FROM WPPFHeader pfd
                     {
                        
                         string archiveSql = @"
-                    Delete  from WPPFHeader
+                    Delete  from PFHeader
                     WHERE Id = @Id";
 
                         SqlCommand archiveCmd = new SqlCommand(archiveSql, currConn, transaction);
@@ -377,97 +365,49 @@ FROM WPPFHeader pfd
                         archiveCmd.ExecuteNonQuery();
 
                         string archiveDetailsSql = @"
-                    Delete From WPPFProfitDistribution
-                    WHERE WPPFHeaderId = @WPPFHeaderId";
+                    Delete From PFDetails
+                    WHERE PFHeaderId = @PFHeaderId";
 
                         SqlCommand archiveDetailsCmd = new SqlCommand(archiveDetailsSql, currConn, transaction);
-                        archiveDetailsCmd.Parameters.AddWithValue("@WPPFHeaderId", id);
+                        archiveDetailsCmd.Parameters.AddWithValue("@PFHeaderId", id);
                         archiveDetailsCmd.ExecuteNonQuery();
                     }
 
                    
                     string insertSql = @"
-            INSERT INTO WPPFHeader
+            INSERT INTO PFHeader
             (
-                Code, FiscalYearDetailId, Year, ProjectId, TotalProfitValue, Post, Remarks, IsActive, IsArchive,
-                CreatedBy, CreatedAt, CreatedFrom, WPPFValue
+                Code, FiscalYearDetailId,  ProjectId, EmployeePFValue,EmployeerPFValue, Post, Remarks, IsActive, IsArchive,
+                CreatedBy, CreatedAt, CreatedFrom,TransactionType,TransType,BranchId
             )
+            OUTPUT INSERTED.Id
             VALUES
             (
-                @Code, @FiscalYearDetailId, @Year, @ProjectId, @TotalProfitValue, 0, @Remarks, 1, 0, 
-                @CreatedBy, @CreatedAt, @CreatedFrom, @WPPFValue
+                @Code, @FiscalYearDetailId,  @ProjectId, @EmployeePFValue,@EmployeerPFValue, 0, @Remarks, 1, 0, 
+                @CreatedBy, @CreatedAt, @CreatedFrom,@TransactionType,@TransType,@BranchId
             );
 
-            SELECT SCOPE_IDENTITY();";
+           ";
 
                     SqlCommand cmd = new SqlCommand(insertSql, currConn, transaction);
-                    cmd.Parameters.AddWithValue("@Code", NewCode);
-                    cmd.Parameters.AddWithValue("@FiscalYearDetailId", FiscalYearDetailId);
-                    cmd.Parameters.AddWithValue("@TotalProfitValue", TotalProfit);
-                    cmd.Parameters.AddWithValue("@Year", FiscalYear);
-                    cmd.Parameters.AddWithValue("@ProjectId", "1_1");
-                    cmd.Parameters.AddWithValue("@Remarks", "");
-                    cmd.Parameters.AddWithValue("@CreatedBy", auditvm.CreatedBy);
-                    cmd.Parameters.AddWithValue("@CreatedAt", auditvm.CreatedAt);
-                    cmd.Parameters.AddWithValue("@CreatedFrom", auditvm.CreatedFrom);
-                    cmd.Parameters.AddWithValue("@WPPFValue", disWPPF);
-                    decimal newId = Convert.ToDecimal(cmd.ExecuteScalar());
-                    //cmd.Parameters.AddWithValue("@WWFValue", disWFF);
-                    //cmd.Parameters.AddWithValue("@BWWF", disWWF);
 
-                    string insertdisWWF = @"
-            INSERT INTO WWFHeader
-            (
-                Code, FiscalYearDetailId, Year, ProjectId, TotalProfitValue, Post, Remarks, IsActive, IsArchive,
-                CreatedBy, CreatedAt, CreatedFrom, WWFValue
-            )
-            VALUES
-            (
-                @Code, @FiscalYearDetailId, @Year, @ProjectId, @TotalProfitValue, 0, @Remarks, 1, 0, 
-                @CreatedBy, @CreatedAt, @CreatedFrom, @WWFValue
-            );
+                    cmd.Parameters.Add("@Code", SqlDbType.NVarChar).Value = NewCode;
+                    cmd.Parameters.Add("@FiscalYearDetailId", SqlDbType.Int).Value = Convert.ToInt32(FiscalYearDetailId);
+                    cmd.Parameters.Add("@ProjectId", SqlDbType.NVarChar).Value = "1_1";
+                    cmd.Parameters.Add("@EmployeePFValue", SqlDbType.Decimal).Value = TotalProfit ?? 0m;
+                    cmd.Parameters.Add("@EmployeerPFValue", Convert.ToDecimal(0.0));
+                    cmd.Parameters.Add("@Remarks", SqlDbType.NVarChar).Value = "";
+                    cmd.Parameters.Add("@CreatedBy", SqlDbType.NVarChar).Value = auditvm.CreatedBy;
+                    cmd.Parameters.Add("@CreatedAt", SqlDbType.NVarChar).Value = auditvm.CreatedAt;
+                    cmd.Parameters.Add("@CreatedFrom", SqlDbType.NVarChar).Value = auditvm.CreatedFrom;
+                    cmd.Parameters.Add("@TransactionType", SqlDbType.NVarChar).Value = DBNull.Value;
+                    cmd.Parameters.Add("@TransType", SqlDbType.NVarChar).Value = DBNull.Value;
+                    cmd.Parameters.Add("@BranchId", SqlDbType.NVarChar).Value = DBNull.Value;
 
-            SELECT SCOPE_IDENTITY();";
+                    int newId = Convert.ToInt32(cmd.ExecuteScalar());
 
-                    SqlCommand WWF = new SqlCommand(insertdisWWF, currConn, transaction);
-                    WWF.Parameters.AddWithValue("@Code", NewCode);
-                    WWF.Parameters.AddWithValue("@FiscalYearDetailId", FiscalYearDetailId);
-                    WWF.Parameters.AddWithValue("@TotalProfitValue", TotalProfit);
-                    WWF.Parameters.AddWithValue("@Year", FiscalYear);
-                    WWF.Parameters.AddWithValue("@ProjectId", "1_1");
-                    WWF.Parameters.AddWithValue("@Remarks", "");
-                    WWF.Parameters.AddWithValue("@CreatedBy", auditvm.CreatedBy);
-                    WWF.Parameters.AddWithValue("@CreatedAt", auditvm.CreatedAt);
-                    WWF.Parameters.AddWithValue("@CreatedFrom", auditvm.CreatedFrom);
-                    WWF.Parameters.AddWithValue("@WWFValue", disWWF);
-                    WWF.ExecuteNonQuery();
 
-                    string insertdisBWWF = @"
-            INSERT INTO BWWFHeader
-            (
-                Code, FiscalYearDetailId, Year, ProjectId, TotalProfitValue, Post, Remarks, IsActive, IsArchive,
-                CreatedBy, CreatedAt, CreatedFrom, BWWFValue
-            )
-            VALUES
-            (
-                @Code, @FiscalYearDetailId, @Year, @ProjectId, @TotalProfitValue, 0, @Remarks, 1, 0, 
-                @CreatedBy, @CreatedAt, @CreatedFrom, @BWWFValue
-            );
-
-            SELECT SCOPE_IDENTITY();";
-
-                    SqlCommand BWWF = new SqlCommand(insertdisBWWF, currConn, transaction);
-                    BWWF.Parameters.AddWithValue("@Code", NewCode);
-                    BWWF.Parameters.AddWithValue("@FiscalYearDetailId", FiscalYearDetailId);
-                    BWWF.Parameters.AddWithValue("@TotalProfitValue", TotalProfit);
-                    BWWF.Parameters.AddWithValue("@Year", FiscalYear);
-                    BWWF.Parameters.AddWithValue("@ProjectId", "1_1");
-                    BWWF.Parameters.AddWithValue("@Remarks", "");
-                    BWWF.Parameters.AddWithValue("@CreatedBy", auditvm.CreatedBy);
-                    BWWF.Parameters.AddWithValue("@CreatedAt", auditvm.CreatedAt);
-                    BWWF.Parameters.AddWithValue("@CreatedFrom", auditvm.CreatedFrom);
-                    BWWF.Parameters.AddWithValue("@BWWFValue", disWWF);
-                    BWWF.ExecuteNonQuery();
+                    
                  
 
                     string empSql = @"
@@ -482,29 +422,29 @@ FROM WPPFHeader pfd
                     daEmp.Fill(dt);
 
                     decimal disPerson = dt.Rows.Count;
-                    decimal disEmpValue = disWPPF / disPerson;
+                    decimal disEmpValue = TotalProfit.Value / disPerson;
 
                     foreach (DataRow dr in dt.Rows)
                     {
                         int empId = Convert.ToInt32(dr["Id"]);
 
                         string insertDetailSql = @"
-                    INSERT INTO WPPFProfitDistribution
+                    INSERT INTO PFDetails
                     (
-                        WPPFHeaderId, EmployeeId, DistributionDate, EmployeeProfit, Post, IsPaid, Remarks, IsActive, IsArchive,
+                        PFHeaderId, EmployeeId,  EmployeePFValue, Post,  Remarks, IsActive, IsArchive,
                         CreatedBy, CreatedAt, CreatedFrom
                     )
                     VALUES
                     (
-                        @WPPFHeaderId, @EmployeeId, @DistributionDate, @EmployeeProfit, 0, 0, '', 1, 0, 
+                        @PFHeaderId, @EmployeeId,  @EmployeePFValue, 0,  '', 1, 0, 
                         @CreatedBy, GETDATE(), @CreatedFrom
                     );";
 
                         SqlCommand detailCmd = new SqlCommand(insertDetailSql, currConn, transaction);
-                        detailCmd.Parameters.AddWithValue("@WPPFHeaderId", newId);
+                        detailCmd.Parameters.AddWithValue("@PFHeaderId", newId);
                         detailCmd.Parameters.AddWithValue("@EmployeeId", empId);
-                        detailCmd.Parameters.AddWithValue("@DistributionDate", distributionDate);
-                        detailCmd.Parameters.AddWithValue("@EmployeeProfit", disEmpValue);
+                        //detailCmd.Parameters.AddWithValue("@DistributionDate", distributionDate);
+                        detailCmd.Parameters.AddWithValue("@EmployeePFValue", disEmpValue);
                         detailCmd.Parameters.AddWithValue("@CreatedBy", auditvm.CreatedBy);
                         detailCmd.Parameters.AddWithValue("@CreatedFrom", auditvm.CreatedFrom);
 
@@ -579,11 +519,11 @@ FROM WPPFHeader pfd
                 {
                     #region Update Settings
                     sqlText = "";
-                    sqlText = "update WPPFHeader set";
+                    sqlText = "update PFHeader set";
                     sqlText += "  Post=@Post";
 
                     sqlText += @" where Id=@Id
-                    update WPPFProfitDistribution set Post=@Post where WPPFHeaderId=@Id
+                    update PFDetails set Post=@Post where PFHeaderId=@Id
                     ";
                     SqlCommand cmdUpdate = new SqlCommand(sqlText, currConn, transaction);
                     cmdUpdate.Parameters.AddWithValue("@Id", vm.Id);
@@ -663,19 +603,16 @@ FROM WPPFHeader pfd
 
                 sqlText = @"
 SELECT 
-    pfd.Id
-    ,pfd.Code
-    ,pfd.FiscalYearDetailId
-    ,p.Name AS ProjectName
-    ,p.Id AS ProjectId
-    ,fyd.PeriodName
-    ,fyd.PeriodStart
-    ,pfd.Post 
-    ,pfd.TotalProfitValue AS TotalPF
-    ,pfd.WPPFValue
-    ,pfd.WWFValue
-    ,pfd.BWWF
-FROM WPPFHeader pfd
+pfd.Id
+,pfd.Code
+,pfd.FiscalYearDetailId
+,p.Name ProjectName
+,p.Id ProjectId
+,fyd.PeriodName
+,fyd.PeriodStart
+,pfd.Post 
+,pfd.EmployeePFValue TotalPF
+FROM PFHeader pfd
 ";
 
                 sqlText += " LEFT OUTER JOIN [dbo].[Project] p ON pfd.ProjectId = p.Id";
@@ -696,17 +633,14 @@ FROM WPPFHeader pfd
                     vm = new PFHeaderVM();
 
                     vm.Id = Convert.ToInt32(dr["Id"]);
-                    vm.Code = dr["Code"].ToString();
                     vm.FiscalYearDetailId = Convert.ToInt32(dr["FiscalYearDetailId"]);
+                    vm.Code = dr["Code"].ToString();
                     vm.ProjectName = dr["ProjectName"].ToString();
                     vm.ProjectId = dr["ProjectId"].ToString();
                     vm.FiscalPeriod = dr["PeriodName"].ToString();
-                    vm.PeriodStart = Ordinary.StringToDate(dr["PeriodStart"].ToString());
-                    vm.Post = Convert.ToBoolean(dr["Post"]);
+                    vm.PeriodStart = dr["PeriodStart"].ToString();
                     vm.TotalPF = Convert.ToDecimal(dr["TotalPF"]);
-                    vm.EmployeePFValue = Convert.ToDecimal(dr["WPPFValue"]);
-                    vm.EmployeerPFValue = Convert.ToDecimal(dr["WWFValue"]);
-                    vm.TotalEmployeeValue = Convert.ToDecimal(dr["BWWF"]);
+                    vm.Post = Convert.ToBoolean(dr["Post"]);
 
                     VMs.Add(vm);
                 }

@@ -874,6 +874,17 @@
       <DependentUpon>rptWithdraw.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Files\ReportFiles\PF\rptWPPFProfitDistribution.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptWPPFProfitDistribution.rpt</DependentUpon>
+    </Compile>
+    <Compile Include="Files\ReportFiles\PF\rptWPPFReport.cs">
+      <SubType>Component</SubType>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptWPPFReport.rpt</DependentUpon>
+    </Compile>
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -5914,6 +5925,14 @@
     <EmbeddedResource Include="Files\ReportFiles\PF\rptWithdraw.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>rptWithdraw.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\ReportFiles\PF\rptWPPFProfitDistribution.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptWPPFProfitDistribution.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\ReportFiles\PF\rptWPPFReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptWPPFReport.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
