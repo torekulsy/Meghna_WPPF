@@ -1,15 +1,15 @@
-﻿@model SymViewModel.WPPF.PFBankDepositVM
+﻿@model SymViewModel.WWF.PFBankDepositVM
 @using UIHelper.MVC
 
 <div class="headrow">
-    <button type="button" title="Add New WPPF" data-url="/WPPF/WPPF/Create" onclick="GoTo(this)" id="" class=" sym-btn-add ">&nbsp;New</button>
-    <button type="button" data-url="/WPPF/WPPF/AllWPPFReport" title="Click to see the Report" id="" class=" sendRpt sym-btn-report">&nbsp;Report</button>
-    <button type="button" data-url="/WPPF/WPPF/DownloadAllWPPFReport" id="" title="Click to Download the Report" class=" sendRpt sym-btn-Excel-Export">&nbsp;Download</button>
-    <label class="pull-right">WPPF Profit Value</label>
+    <button type="button" title="Add New WWF" data-url="/WWF/WWF/Create" onclick="GoTo(this)" id="" class=" sym-btn-add ">&nbsp;New</button>
+    <button type="button" data-url="/WWF/WWF/AllWPPFReport" title="Click to see the Report" id="" class=" sendRpt sym-btn-report">&nbsp;Report</button>
+    <button type="button" data-url="/WWF/WWF/DownloadAllWPPFReport" id="" title="Click to Download the Report" class=" sendRpt sym-btn-Excel-Export">&nbsp;Download</button>
+    <label class="pull-right">WWF Profit Value</label>
 </div>
 <div class="thinbox">
     <div class="th_thinbox">
-        <p class="thinHead">WPPF Profit Value</p>
+        <p class="thinHead">WWF Profit Value</p>
     </div>
     <p>
     </p>
@@ -21,7 +21,7 @@
                 <th class="center">Code</th>
                 <th class="center">Project</th>
                 <th class="center">Fiscal Period</th>
-                <th class="center">WPPF/Total Profit</th>
+                <th class="center">WWF/Total Profit</th>
                 <th class="center">Post</th>
 
             </tr>
@@ -31,9 +31,9 @@
     <br />
 </div>
 <div class="headrow">
-    <button type="button" title="Add New WPPF" data-url="/WPPF/WPPF/Create" onclick="GoTo(this)" id="" class=" sym-btn-add ">&nbsp;New</button>
-    <button type="button" data-url="/WPPF/WPPF/AllWPPFReport" title="Click to see the Report" id="" class=" sendRpt sym-btn-report">&nbsp;Report</button>
-    <button type="button" data-url="/WPPF/WPPF/DownloadAllWPPFReport" id="" title="Click to Download the Report" class=" sendRpt sym-btn-Excel-Export">&nbsp;Download</button>
+    <button type="button" title="Add New WWF" data-url="/WWF/WWF/Create" onclick="GoTo(this)" id="" class=" sym-btn-add ">&nbsp;New</button>
+    <button type="button" data-url="/WWF/WWF/AllWPPFReport" title="Click to see the Report" id="" class=" sendRpt sym-btn-report">&nbsp;Report</button>
+    <button type="button" data-url="/WWF/WWF/DownloadAllWPPFReport" id="" title="Click to Download the Report" class=" sendRpt sym-btn-Excel-Export">&nbsp;Download</button>
 </div>
 
 
@@ -52,7 +52,7 @@
         $.datepicker.setDefaults($.datepicker.regional['']);
         var oTable = $('#myDataTable').dataTable({
             "bServerSide": true,
-            "sAjaxSource": "/WPPF/WPPF/_indexFiscalPeriod?EmployeeId=@ViewBag.EmployeeId&fydid=@ViewBag.fydid",
+            "sAjaxSource": "/WWF/WWF/_indexFiscalPeriod?EmployeeId=@ViewBag.EmployeeId&fydid=@ViewBag.fydid",
             "bProcessing": true,
             "aLengthMenu": tablelength(),
             "bJqueryUI": true,
@@ -67,18 +67,18 @@
                                 "fnRender": function (oObj) {
                                     if (oObj.aData[5] == "Yes") {
                                         return ''
-     + '<a title="Click on for Details" style="text-decoration:none;" href="/WPPF/WPPF/ProfitDistribution?code=' + oObj.aData[1] + '" class="sym-btn-detail-row"></a>'
+     + '<a title="Click on for Details" style="text-decoration:none;" href="/WWF/WWF/ProfitDistribution?code=' + oObj.aData[1] + '" class="sym-btn-detail-row"></a>'
 
 
-     + '<a title="Click on for Post" data-url="/WPPF/WPPF/Post"  onclick=btnPostNew(this);  data-Id="' + oObj.aData[0] + "~" + oObj.aData[5] + '\" class="sym-btn-post-row" style="opacity:0.45;pointer-events:none;cursor:default;"></a>'
+     + '<a title="Click on for Post" data-url="/WWF/WWF/Post"  onclick=btnPostNew(this);  data-Id="' + oObj.aData[0] + "~" + oObj.aData[5] + '\" class="sym-btn-post-row" style="opacity:0.45;pointer-events:none;cursor:default;"></a>'
                                         ;
                                     }
                                     else {
                                         return ''
-    + '<a title="Click on for Details" style="text-decoration:none;" href="/WPPF/WPPF/ProfitDistribution?code=' + oObj.aData[1] + '" class="sym-btn-detail-row"></a>'
+    + '<a title="Click on for Details" style="text-decoration:none;" href="/WWF/WWF/ProfitDistribution?code=' + oObj.aData[1] + '" class="sym-btn-detail-row"></a>'
 
 
-    + '<a title="Click on for Post" data-url="/WPPF/WPPF/Post"  onclick=btnPostNew(this);  data-Id="' + oObj.aData[0] + "~" + oObj.aData[5] + '\" class="sym-btn-post-row"></a>'
+    + '<a title="Click on for Post" data-url="/WWF/WWF/Post"  onclick=btnPostNew(this);  data-Id="' + oObj.aData[0] + "~" + oObj.aData[5] + '\" class="sym-btn-post-row"></a>'
                                         ;
                                     }
 
@@ -120,7 +120,7 @@
             ShowResult("Fail", "Data Already Posted!");
             return true;
         }
-        var getURL = "/WPPF/WPPF/Post" + "?" + "ids=" + Id;
+        var getURL = "/WWF/WWF/Post" + "?" + "ids=" + Id;
 
         $.getJSON(getURL, function (vm) {
 

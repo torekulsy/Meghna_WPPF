@@ -1,4 +1,4 @@
-﻿@model SymViewModel.WPPF.PFDetailVM
+﻿@model SymViewModel.WWF.PFDetailVM
 
 @using UIHelper.MVC
 @Html.ValidationSummary(true)
@@ -11,13 +11,13 @@
 </style>
 <div class="headrow">
     <button type="button" title="Save Data" id="" class="saveJSON sym-btn-save">&nbsp;Save</button>
-    <button type="button" title="Go To Index" data-url="/WPPF/WPPF/IndexFiscalPeriod" onclick="GoTo(this)" class="sym-btn-detail">&nbsp;Index</button>
+    <button type="button" title="Go To Index" data-url="/WWF/WWF/IndexFiscalPeriod" onclick="GoTo(this)" class="sym-btn-detail">&nbsp;Index</button>
 
-    <label class="pull-right">Profit Value</label>
+    <label class="pull-right">WWF Profit Value</label>
 </div>
 <div class="thinbox">
     <div class="th_thinbox">
-        <p>Profit Value</p>
+        <p>WWF Profit Value</p>
     </div>
     <div class="PFProcess">
         <div class="row">
@@ -80,7 +80,7 @@
             ShowResult("Fail", "Please Select the Fiscal Year");
             return;
         }
-        var url = "/WPPF/WPPF/Create"
+        var url = "/WWF/WWF/Create"
         + "?fydid=" + FiscalPeriodDetailId
         + "&TotalProfit=" + TotalProfit
         + "&FiscalYear=" + FiscalYear;

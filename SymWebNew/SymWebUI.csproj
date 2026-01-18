@@ -455,6 +455,7 @@
     <Compile Include="Areas\WWF\Controllers\SettlementPolicyController.cs" />
     <Compile Include="Areas\WWF\Controllers\TransactionMediaController.cs" />
     <Compile Include="Areas\WWF\Controllers\WithdrawController.cs" />
+    <Compile Include="Areas\WWF\Controllers\WWFController.cs" />
     <Compile Include="Areas\WWF\Models\AreaTypeVM.cs" />
     <Compile Include="Areas\WWF\WWFAreaRegistration.cs" />
     <Compile Include="Controllers\AccountController.cs" />
@@ -5248,6 +5249,9 @@
     <Content Include="Areas\BWWF\Views\Withdraw\Report.cshtml" />
     <Content Include="Areas\BWWF\Views\Withdraw\reportVeiw.cshtml" />
     <Content Include="Areas\BWWF\Views\Withdraw\_details.cshtml" />
+    <Content Include="Areas\WWF\Views\WWF\Create.cshtml" />
+    <Content Include="Areas\WWF\Views\WWF\IndexFiscalPeriod.cshtml" />
+    <Content Include="Areas\WWF\Views\WWF\ProfitDistribution.cshtml" />
     <None Include="Properties\PublishProfiles\PFEGCB.pubxml" />
     <None Include="Properties\PublishProfiles\SymphonyHRM_New.pubxml" />
     <Content Include="Views\Home\ForgotPasswordView.cshtml" />

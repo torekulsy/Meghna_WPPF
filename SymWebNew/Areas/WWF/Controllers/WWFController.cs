@@ -23,16 +23,16 @@ using SymRepository.Enum;
 using SymViewModel.Enum;
 using System.Configuration;
 
-namespace SymWebUI.Areas.WPPF.Controllers
+namespace SymWebUI.Areas.WWF.Controllers
 {
-    public class WPPFController : Controller
+    public class WWFController : Controller
     {
-        public WPPFController()
+        public WWFController()
         {
             ViewBag.TransType = AreaTypePFVM.TransType;
         }
         //
-        // GET: /WPPF/WPPF/
+        // GET: /WWF/WWF/
         WPPFRepo _repo = new WPPFRepo();
         SymUserRoleRepo _repoSUR = new SymUserRoleRepo();
         ShampanIdentity identity = (ShampanIdentity)Thread.CurrentPrincipal.Identity;
@@ -54,7 +54,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
             string[] conditionFields = { "pfd.EmployeeId", "pfd.FiscalYearDetailId" };
             string[] conditionValues = { EmployeeId, fydid };
-            string TransType = AreaTypeWPPFVM.TransType;
+            string TransType = AreaTypeWWFVM.TransType;
             getAllData = _repo.SelectFiscalPeriodHeader(TransType, conditionFields, conditionValues);
 
             if (!string.IsNullOrEmpty(param.sSearch))
@@ -140,7 +140,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 CreatedFrom = identity.WorkStationIP
             };
 
-            string TransType = AreaTypeWPPFVM.TransType;
+            string TransType = AreaTypeWWFVM.TransType;
             WPPFRepo repo = new WPPFRepo();
             string[] result = repo.Insert(TotalProfit, fydid, FiscalYear,TransType, vm);
 
@@ -161,8 +161,8 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 WPPFRepo _repo = new WPPFRepo();
                 string[] conditionFields = { "b.Code" };
                 string[] conditionValues = { code.ToString() };
+                string TransType = AreaTypeWWFVM.TransType;
 
-                string TransType = AreaTypeWPPFVM.TransType;
                 var pfh = _repo.SelectProfitDistribution(TransType, conditionFields, conditionValues).FirstOrDefault();
                 ViewBag.PeriodName = pfh.FiscalPeriod + " (" + pfh.ProjectName + " )";
 
@@ -184,7 +184,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
             string[] conditionFields = { "b.Code" };
             string[] conditionValues = { code.ToString() };
-            string TransType = AreaTypeWPPFVM.TransType;
+            string TransType = AreaTypeWWFVM.TransType;
             getAllData = _repo.SelectProfitDistribution(TransType, conditionFields, conditionValues);
 
             if (!string.IsNullOrEmpty(param.sSearch))
@@ -263,7 +263,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 {
                     Id = Convert.ToInt32(ids.Split('~')[0])
                 };
-                string TransType = AreaTypeWPPFVM.TransType;
+                string TransType = AreaTypeWWFVM.TransType;
                 // Prepare the result variable to hold the outcome of the post operation
                 string[] result = _repo.PostHeader(TransType, headerVm);
 
@@ -304,7 +304,8 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 ReportDocument doc = new ReportDocument();
                 DataSet ds = new DataSet();
                 DataTable dt = new DataTable();
-                string TransType = AreaTypeWPPFVM.TransType;
+
+                string TransType = AreaTypeWWFVM.TransType;
                 // RepoCall → load all WPPF headers without filtering
                 WPPFRepo _repo = new WPPFRepo();
                 var getAllData = _repo.SelectAll(TransType);
@@ -458,7 +459,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
                     return Redirect("/Payroll/Home");
                 }
 
-                string FileName = "WPPF Profit Value Report.xls";
+                string FileName = "WWF Profit Value Report.xls";
                 string fullPath = AppDomain.CurrentDomain.BaseDirectory + "Files\\Export\\";
 
                 if (System.IO.File.Exists(fullPath + FileName))
@@ -470,7 +471,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
 
                 #region Pull Data
-                string TransType = AreaTypeWPPFVM.TransType;
+                string TransType = AreaTypeWWFVM.TransType;
                 WPPFRepo _repo = new WPPFRepo();
                 var getAllData = _repo.SelectAll(TransType);
 
@@ -541,7 +542,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
                 #region Report Info
 
-                string filename = "WPPF Profit Value Excel Report";
+                string filename = "WWF Profit Value_ExcelReport";
 
                 CompanyRepo cRepo = new CompanyRepo();
                 CompanyVM comInfo = cRepo.SelectById(1);
@@ -586,7 +587,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 result[1] = "Successful~Excel Downloaded";
 
                 Session["result"] = result[0] + "~" + result[1];
-                return Redirect("/PF/WPPF/IndexFiscalPeriod");
+                return Redirect("/PF/WWF/IndexFiscalPeriod");
 
                 #endregion
             }
@@ -596,7 +597,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
                 FileLogger.Log("DownloadAllWPPFReport", this.GetType().Name, e.Message + Environment.NewLine + e.StackTrace);
 
-                return Redirect("/PF/WPPF/IndexFiscalPeriod");
+                return Redirect("/PF/WWF/IndexFiscalPeriod");
             }
         }
 
@@ -626,7 +627,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
                 string[] conditionFields = { "b.Code" };
                 string[] conditionValues = { code };
-                string TransType = AreaTypeWPPFVM.TransType;
+                string TransType = AreaTypeWWFVM.TransType;
                 var getAllData = _repo.SelectProfitDistribution(TransType, conditionFields, conditionValues);
 
                 dt = Ordinary.ListToDataTable(getAllData.ToList());
@@ -690,7 +691,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
                     return Redirect("/Payroll/Home");
                 }
 
-                string FileName = "WPPF Profit Distribution Report.xls";
+                string FileName = "WWF Distribution Report.xls";
                 string fullPath = AppDomain.CurrentDomain.BaseDirectory + "Files\\Export\\";
 
                 if (System.IO.File.Exists(fullPath + FileName))
@@ -708,7 +709,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 // If 'code' is provided, filter by it, otherwise fetch all data
                 string[] conditionFields = { "b.Code" };
                 string[] conditionValues = { code };
-                string TransType = AreaTypeWPPFVM.TransType;
+                string TransType = AreaTypeWWFVM.TransType;
                 var getAllData = _repo.SelectProfitDistribution(TransType, conditionFields, conditionValues);
                 dt = Ordinary.ListToDataTable(getAllData.ToList());
 
@@ -770,7 +771,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
 
 
                 #region Excel Header Setup
-                string filename = "WPPF Profit Distribution_ExcelReport";
+                string filename = "WWF Profit Distribution_ExcelReport";
                 CompanyRepo cRepo = new CompanyRepo();
                 CompanyVM comInfo = cRepo.SelectById(1);
 
@@ -814,7 +815,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
                 result[1] = "Successful~Excel Downloaded";
                 Session["result"] = result[0] + "~" + result[1];
 
-                return Redirect("/PF/WPPF/ProfitDistribution");
+                return Redirect("/PF/WWF/ProfitDistribution");
 
                 #endregion
             }
@@ -822,7 +823,7 @@ namespace SymWebUI.Areas.WPPF.Controllers
             {
                 Session["result"] = "Fail~Process Fail";
                 FileLogger.Log("DownloadAllWPPFProfitDistributionReport", this.GetType().Name, e.Message);
-                return Redirect("/PF/WPPF/ProfitDistribution");
+                return Redirect("/PF/WWF/ProfitDistribution");
             }
         }
     }

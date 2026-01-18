@@ -26,7 +26,7 @@ namespace SymServices.WPPF
 
         #region Methods
 
-        public List<PFHeaderVM> SelectFiscalPeriodHeader(string[] conditionFields = null, string[] conditionValues = null, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        public List<PFHeaderVM> SelectFiscalPeriodHeader(string TransType, string[] conditionFields = null, string[] conditionValues = null, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             #region Variables
             SqlConnection currConn = null;
@@ -80,7 +80,7 @@ FROM PFHeader pfd
 
                 sqlText += "  LEFT OUTER JOIN [dbo].Project p ON pfd.ProjectId=p.Id";
                 sqlText += "  LEFT OUTER JOIN [dbo].[FiscalYearDetail] fyd ON pfd.FiscalYearDetailId=fyd.Id";
-                sqlText += @" WHERE  1=1  AND pfd.IsArchive = 0
+                sqlText += @" WHERE  1=1  AND pfd.IsArchive = 0 AND pfd.TransType = @TransType
 ";
                 string cField = "";
                 if (conditionFields != null && conditionValues != null && conditionFields.Length == conditionValues.Length)
@@ -103,6 +103,7 @@ FROM PFHeader pfd
                 #region SqlExecution
 
                 SqlCommand objComm = new SqlCommand(sqlText, currConn, transaction);
+                objComm.Parameters.Add("@TransType", SqlDbType.NVarChar).Value = TransType;
                 if (conditionFields != null && conditionValues != null && conditionFields.Length == conditionValues.Length)
                 {
                     for (int j = 0; j < conditionFields.Length; j++)
@@ -131,6 +132,7 @@ FROM PFHeader pfd
                     vm.PeriodStart = dr["PeriodStart"].ToString();
                     vm.TotalPF = Convert.ToDecimal(dr["TotalPF"]);
                     vm.Post = Convert.ToBoolean(dr["Post"]);
+                    vm.TransType = TransType;
 
                     VMs.Add(vm);
                 }
@@ -162,7 +164,7 @@ FROM PFHeader pfd
             return VMs;
         }
 
-        public List<PFHeaderVM> SelectProfitDistribution(string[] conditionFields = null, string[] conditionValues = null, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        public List<PFHeaderVM> SelectProfitDistribution(string TransType, string[] conditionFields = null, string[] conditionValues = null, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             #region Variables
             SqlConnection currConn = null;
@@ -204,7 +206,7 @@ FROM PFHeader pfd
 
                 sqlText += "  left join PFHeader b on a.PFHeaderId = b.Id";
                 sqlText += "  left join EmployeeInfo c on a.EmployeeId = c.Id";
-                sqlText += @" WHERE  1=1 AND a.IsArchive = 0 ";
+                sqlText += @" WHERE  1=1 AND a.IsArchive = 0 AND b.TransType = @TransType ";
                 string cField = "";
                 if (conditionFields != null && conditionValues != null && conditionFields.Length == conditionValues.Length)
                 {
@@ -225,6 +227,7 @@ FROM PFHeader pfd
                 #region SqlExecution
 
                 SqlCommand objComm = new SqlCommand(sqlText, currConn, transaction);
+                objComm.Parameters.Add("@TransType", SqlDbType.NVarChar).Value = TransType;
                 if (conditionFields != null && conditionValues != null && conditionFields.Length == conditionValues.Length)
                 {
                     for (int j = 0; j < conditionFields.Length; j++)
@@ -249,7 +252,7 @@ FROM PFHeader pfd
                     vm.ProjectName = dr["Name"].ToString();
                     vm.TotalPF = Convert.ToDecimal(dr["EmployeePFValue"]);
                     vm.Post = Convert.ToBoolean(dr["Post"]);
-
+                    vm.TransType = TransType;
                     VMs.Add(vm);
                 }
                 dr.Close();
@@ -280,7 +283,7 @@ FROM PFHeader pfd
             return VMs;
         }
 
-        public string[] Insert(decimal? TotalProfit, string FiscalYearDetailId, int? FiscalYear, ShampanIdentityVM auditvm, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        public string[] Insert(decimal? TotalProfit, string FiscalYearDetailId, int? FiscalYear, string TransType, ShampanIdentityVM auditvm, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             string[] ret = new string[6] { "Fail", "Fail", "0", "", "", "PFProcess" };
 
@@ -313,10 +316,19 @@ FROM PFHeader pfd
                     object obj = fyCmd.ExecuteScalar();
                     distributionDate = obj == null || obj == DBNull.Value ? DateTime.Now.ToString() : obj.ToString();
                 }
+                string NewCode = "";
 
-                string NewCode = new CommonDAL().CodeGenerationPF("PF", "WPPF", DateTime.Now.ToString(), currConn, transaction);
+                if (TransType == "WPPF")
+                {
+                    NewCode = new CommonDAL()
+                        .CodeGenerationPF("PF", "WPPF", DateTime.Now.ToString(), currConn, transaction);
+                }
+                else
+                {
+                    NewCode = new CommonDAL()
+                        .CodeGenerationPF("PF", "WWF", DateTime.Now.ToString(), currConn, transaction);
+                }
 
-               
                 string checkPostSql = @"
             SELECT Post
             FROM PFHeader
@@ -401,7 +413,7 @@ FROM PFHeader pfd
                     cmd.Parameters.Add("@CreatedAt", SqlDbType.NVarChar).Value = auditvm.CreatedAt;
                     cmd.Parameters.Add("@CreatedFrom", SqlDbType.NVarChar).Value = auditvm.CreatedFrom;
                     cmd.Parameters.Add("@TransactionType", SqlDbType.NVarChar).Value = DBNull.Value;
-                    cmd.Parameters.Add("@TransType", SqlDbType.NVarChar).Value = DBNull.Value;
+                    cmd.Parameters.Add("@TransType", SqlDbType.NVarChar).Value = TransType;
                     cmd.Parameters.Add("@BranchId", SqlDbType.NVarChar).Value = DBNull.Value;
 
                     int newId = Convert.ToInt32(cmd.ExecuteScalar());
@@ -476,7 +488,7 @@ FROM PFHeader pfd
             }
         }
 
-        public string[] PostHeader(PFHeaderVM vm, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        public string[] PostHeader(string TransType, PFHeaderVM vm, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             #region Variables
             string[] retResults = new string[6];
@@ -522,12 +534,13 @@ FROM PFHeader pfd
                     sqlText = "update PFHeader set";
                     sqlText += "  Post=@Post";
 
-                    sqlText += @" where Id=@Id
+                    sqlText += @" where Id=@Id AND TransType=@TransType
                     update PFDetails set Post=@Post where PFHeaderId=@Id
                     ";
                     SqlCommand cmdUpdate = new SqlCommand(sqlText, currConn, transaction);
                     cmdUpdate.Parameters.AddWithValue("@Id", vm.Id);
                     cmdUpdate.Parameters.AddWithValue("@Post", true);
+                    cmdUpdate.Parameters.AddWithValue("@TransType", TransType);
 
                     var exeRes = cmdUpdate.ExecuteNonQuery();
                     transResult = Convert.ToInt32(exeRes);
@@ -578,7 +591,7 @@ FROM PFHeader pfd
             return retResults;
         }
 
-        public List<PFHeaderVM> SelectAll()
+        public List<PFHeaderVM> SelectAll(string TransType)
         {
             #region Variables
             SqlConnection currConn = null;
@@ -617,14 +630,14 @@ FROM PFHeader pfd
 
                 sqlText += " LEFT OUTER JOIN [dbo].[Project] p ON pfd.ProjectId = p.Id";
                 sqlText += " LEFT OUTER JOIN [dbo].[FiscalYearDetail] fyd ON pfd.FiscalYearDetailId = fyd.Id";
-                sqlText += " WHERE 1 = 1 AND pfd.IsArchive = 0";
+                sqlText += " WHERE 1 = 1 AND pfd.IsArchive = 0 AND pfd.TransType = @TransType";
                 sqlText += " ORDER BY fyd.PeriodStart DESC";
 
                 SqlCommand _objComm = new SqlCommand();
                 _objComm.Connection = currConn;
                 _objComm.CommandText = sqlText;
                 _objComm.CommandType = CommandType.Text;
-
+                _objComm.Parameters.Add("@TransType", SqlDbType.NVarChar).Value = TransType;
                 SqlDataReader dr;
                 dr = _objComm.ExecuteReader();
 
@@ -641,7 +654,7 @@ FROM PFHeader pfd
                     vm.PeriodStart = dr["PeriodStart"].ToString();
                     vm.TotalPF = Convert.ToDecimal(dr["TotalPF"]);
                     vm.Post = Convert.ToBoolean(dr["Post"]);
-
+                    vm.TransType = TransType;
                     VMs.Add(vm);
                 }
 

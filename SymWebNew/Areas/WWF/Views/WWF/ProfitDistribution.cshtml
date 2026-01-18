@@ -1,22 +1,22 @@
-﻿@model SymViewModel.WPPF.PFBankDepositVM
+﻿@model SymViewModel.WWF.PFBankDepositVM
 @using UIHelper.MVC
 
 <div class="headrow">
-    <button type="button" title="Go To Index" data-url="/WPPF/WPPF/IndexFiscalPeriod" onclick="GoTo(this)" class="sym-btn-detail">&nbsp;Index</button>
-    @*<button type="button" data-url="/PF/WPPF/AllWPPFProfitDistributionReport" title="Click to see the Report" id="" class=" sendRpt sym-btn-report">&nbsp;Report</button>*@
+    <button type="button" title="Go To Index" data-url="/WWF/WWF/IndexFiscalPeriod" onclick="GoTo(this)" class="sym-btn-detail">&nbsp;Index</button>
+    @*<button type="button" data-url="/PF/WWF/AllWWFProfitDistributionReport" title="Click to see the Report" id="" class=" sendRpt sym-btn-report">&nbsp;Report</button>*@
     <button type="button"
             class="sendRpt sym-btn-report"
             data-code=""
-            data-url="/WPPF/WPPF/AllWPPFProfitDistributionReport">
+            data-url="/WWF/WWF/AllWPPFProfitDistributionReport">
         Report
     </button>
 
-    <button type="button" data-url="/WPPF/WPPF/DownloadAllWPPFProfitDistributionReport" class=" sendRpt sym-btn-Excel-Export" data-code="">&nbsp;Download</button>
-    <label class="pull-right">WPPF Profit Distribution</label>
+    <button type="button" data-url="/WWF/WWF/DownloadAllWPPFProfitDistributionReport" class=" sendRpt sym-btn-Excel-Export" data-code="">&nbsp;Download</button>
+    <label class="pull-right">WWF Profit Distribution</label>
 </div>
 <div class="thinbox">
     <div class="th_thinbox">
-        <p class="thinHead">WPPF Profit Distribution</p>
+        <p class="thinHead">WWF Profit Distribution</p>
     </div>
     <p>
     </p>
@@ -25,9 +25,8 @@
             <tr>
 
                 @*<th class="center">Action</th>*@
-                <th class="center">WPPF Code</th>
+                <th class="center">WWF Code</th>
                 <th class="center">Employee Name</th>
-                <th class="center">Distribution Date</th>
                 <th class="center">Employee Profit</th>
                 <th class="center">Post Status</th>
 
@@ -38,14 +37,14 @@
     <br />
 </div>
 <div class="headrow">
-    <button type="button" title="Go To Index" data-url="/WPPF/WPPF/IndexFiscalPeriod" onclick="GoTo(this)" class="sym-btn-detail">&nbsp;Index</button>
+    <button type="button" title="Go To Index" data-url="/WWF/WWF/IndexFiscalPeriod" onclick="GoTo(this)" class="sym-btn-detail">&nbsp;Index</button>
     <button type="button"
             class="sendRpt sym-btn-report"
             data-code=""
-            data-url="/WPPF/WPPF/AllWPPFProfitDistributionReport">
+            data-url="/WWF/WWF/AllWWFProfitDistributionReport">
         Report
     </button>
-    <button type="button" data-url="/WPPF/WPPF/DownloadAllWPPFProfitDistributionReport" class=" sendRpt sym-btn-Excel-Export" data-code="">&nbsp;Download</button>
+    <button type="button" data-url="/WWF/WWF/DownloadAllWPPFProfitDistributionReport" class=" sendRpt sym-btn-Excel-Export" data-code="">&nbsp;Download</button>
 </div>
 
 <script language="javascript" type="text/javascript">
@@ -55,7 +54,7 @@
         $.datepicker.setDefaults($.datepicker.regional['']);
         var oTable = $('#myDataTable').dataTable({
             "bServerSide": true,
-            "sAjaxSource": "/WPPF/WPPF/_indexProfitDistribution?code=@ViewBag.code",
+            "sAjaxSource": "/WWF/WWF/_indexProfitDistribution?code=@ViewBag.code",
             "bProcessing": true,
             "aLengthMenu": tablelength(),
             "bJqueryUI": true,
@@ -64,15 +63,14 @@
 
                              { "sName": "Code", "sWidth": "10%" }
                             , { "sName": "ProjectName", "sWidth": "20%" }
-                            , { "sName": "DistributionDate", "sWidth": "10%" }
                             , {
                                 "sName": "TotalPF",
                                 "sWidth": "10%", "sClass": "right",
                                 "fnRender": function (oObj) {
-                                    return formatNumberWithCommas(oObj.aData[3]);
+                                    return formatNumberWithCommas(oObj.aData[2]);
                                 }
                             }                         
-                            , { "sName": "Post", "sWidth": "12%" }
+                            , { "sName": "Post", "sWidth": "12%", "sClass": "center" }
             ]
         });
 
