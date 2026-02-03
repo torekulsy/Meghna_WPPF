@@ -93,5 +93,7 @@ namespace SymViewModel.Common
         public bool IsPF { get; set; }
 
         public bool IsGF { get; set; }
+
+        public bool IsApprove { get; set; }
     }
 }

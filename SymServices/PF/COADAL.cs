@@ -191,7 +191,7 @@ WHERE  1=1
         /// <param name="VcurrConn">An optional SQL connection. If not provided, a new connection is established.</param>
         /// <param name="Vtransaction">An optional SQL transaction. If not provided, a new transaction is created and committed.</param>
         /// <returns>A list of <see cref="COAVM"/> representing the bank branches matching the criteria.</returns>
-        public List<COAVM> SelectAll(int Id = 0, string[] conditionFields = null, string[] conditionValues = null, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        public List<COAVM> SelectAll(string branchId, int Id = 0, string[] conditionFields = null, string[] conditionValues = null, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             #region Variables
             SqlConnection currConn = null;
@@ -253,7 +253,7 @@ SELECT
 
 FROM COAs
 left outer join COAGroups g on COAs.COAGroupId=g.id
-WHERE COAs.IsArchive=0
+WHERE COAs.IsArchive=0 and BranchId=@BranchId
 ";
                 if (Id > 0)
                 {
@@ -294,7 +294,8 @@ WHERE COAs.IsArchive=0
                 {
                     objComm.Parameters.AddWithValue("@Id", Id);
                 }
-                
+                objComm.Parameters.AddWithValue("@BranchId", branchId);
+
                 SqlDataReader dr;
                 dr = objComm.ExecuteReader();
                 while (dr.Read())
@@ -320,6 +321,7 @@ WHERE COAs.IsArchive=0
                     vm.IsNetProfit = Convert.ToBoolean(dr["IsNetProfit"]);
                     vm.IsDepreciation = Convert.ToBoolean(dr["IsDepreciation"]);
                     vm.COAType = dr["COAType"].ToString();
+                    vm.BranchId = branchId;
 
                     VMs.Add(vm);
                 }

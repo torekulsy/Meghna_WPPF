@@ -24,11 +24,11 @@ namespace SymRepository.PF
 
 
 
-        public List<AutoJournalSetupVM> SelectAll(int Id = 0, string[] conditionFields = null, string[] conditionValues = null)
+        public List<AutoJournalSetupVM> SelectAll(string BranchId, int Id = 0, string[] conditionFields = null, string[] conditionValues = null)
         {
             try
             {
-                return new AutoJournalSetupDAL().SelectAll(Id, conditionFields, conditionValues);
+                return new AutoJournalSetupDAL().SelectAll(BranchId, Id, conditionFields, conditionValues);
             }
             catch (Exception ex)
             {

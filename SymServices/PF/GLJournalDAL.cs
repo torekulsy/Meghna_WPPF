@@ -86,6 +86,7 @@ gl.Id
 ,gl.LastUpdateAt
 ,gl.LastUpdateFrom
 ,gl.Post
+,gl.IsApprove
 from GLJournals gl left outer join EnumJournalType jt on gl.JournalType = jt.Id
  left outer join EnumJournalTransactionType jtt on gl.TransactionType= jtt.Id
 
@@ -96,9 +97,9 @@ WHERE  1=1 AND IsArchive = 0
                 {
                     sqlText += @" and gl.Id=@Id";
                 }
-                sqlText += " order by TransactionDate desc";               
-               
-                SqlCommand objComm = new SqlCommand(sqlText, currConn, transaction);               
+                sqlText += " order by TransactionDate desc";
+
+                SqlCommand objComm = new SqlCommand(sqlText, currConn, transaction);
                 if (Id > 0)
                 {
                     objComm.Parameters.AddWithValue("@Id", Id);
@@ -123,12 +124,14 @@ WHERE  1=1 AND IsArchive = 0
                     vm.JournalTypeName = dr["JournalTypeName"].ToString();
                     vm.IsActive = Convert.ToBoolean(dr["IsActive"]);
                     vm.IsArchive = Convert.ToBoolean(dr["IsArchive"]);
+                    vm.IsApprove = Convert.ToBoolean(dr["IsApprove"]);
                     vm.CreatedAt = Ordinary.StringToDate(dr["CreatedAt"].ToString());
                     vm.CreatedBy = dr["CreatedBy"].ToString();
                     vm.CreatedFrom = dr["CreatedFrom"].ToString();
                     vm.LastUpdateAt = Ordinary.StringToDate(dr["LastUpdateAt"].ToString());
                     vm.LastUpdateBy = dr["LastUpdateBy"].ToString();
                     vm.LastUpdateFrom = dr["LastUpdateFrom"].ToString();
+                    vm.Source = dr["Remarks"].ToString();
 
                     VMs.Add(vm);
                 }
@@ -378,47 +381,56 @@ WHERE  1=1
 
                 vm.Id = _cDal.NextId("GLJournals", currConn, transaction);
 
-                if (vm.Code != null)
+                if (vm.Source != null)
                 {
-                    string glcode = "SELECT * FROM GLJournals WHERE Code = @Code";
+                    string glcode = "SELECT * FROM GLJournals WHERE Source = @Source";
                     SqlCommand cmd = new SqlCommand(glcode, currConn);
-                    cmd.Parameters.AddWithValue("@Code", vm.Code);
+                    cmd.Parameters.AddWithValue("@Source", vm.Source);
                     cmd.Transaction = transaction;
                     SqlDataReader reader = cmd.ExecuteReader();
                     dt.Load(reader);
+
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        retResults[0] = "Fail";
+                        retResults[1] = "Journal Already Created!!";
+
+                        return retResults;
+                    }
                 }
-                
+
                 sqlText = "select isnull(count(id),0)+1 FROM  GLJournals where TransactionType=@TransactionType";
                 SqlCommand cmd2 = new SqlCommand(sqlText, currConn);
                 cmd2.Transaction = transaction;
                 cmd2.Parameters.AddWithValue("@TransactionType", vm.TransactionType);
                 var idExecuteScalar = cmd2.ExecuteScalar();
                 int nextId = Convert.ToInt32(idExecuteScalar);
+                if (vm.SourceId == 0) { vm.SourceId = nextId; vm.Source = "From Journal"; }
 
                 if (vm.Code == null || vm.Code == "0")
                 {
-                  
+
                     if (vm.JournalType == 1)
                     {
                         string NewCode = new CommonDAL().CodeGenerationPF(vm.TransType, "JournalVoucher", vm.TransactionDate, currConn, transaction);
-                        vm.Code = NewCode;                    
+                        vm.Code = NewCode;
                     }
                     else if (vm.JournalType == 2)
                     {
                         string NewCode = new CommonDAL().CodeGenerationPF(vm.TransType, "PaymentVoucher", vm.TransactionDate, currConn, transaction);
-                        vm.Code = NewCode;                     
+                        vm.Code = NewCode;
                     }
                     else if (vm.JournalType == 3)
                     {
                         string NewCode = new CommonDAL().CodeGenerationPF(vm.TransType, "ReceiptVoucher", vm.TransactionDate, currConn, transaction);
-                        vm.Code = NewCode;                     
+                        vm.Code = NewCode;
                     }
-                }             
+                }
                 if (vm != null)
                 {
                     sqlText = "  ";
-                    sqlText += @" 
-                        Delete from GLJournals where Code=@code;                         
+                    sqlText += @"                                  
                         INSERT INTO GLJournals(
                         Code
                         ,TransactionDate
@@ -427,12 +439,16 @@ WHERE  1=1
                         ,Remarks
                         ,IsActive
                         ,IsArchive
+                        ,IsApprove
                         ,CreatedBy
                         ,CreatedAt
                         ,CreatedFrom
                         ,Post
                         ,TransType
-                        ,IsYearClosing,BranchId
+                        ,IsYearClosing
+                        ,BranchId
+                        ,Source
+                        ,SourceId
 
                         ) VALUES (
                         @Code
@@ -442,12 +458,16 @@ WHERE  1=1
                         ,@Remarks
                         ,@IsActive
                         ,@IsArchive
+                        ,@IsApprove
                         ,@CreatedBy
                         ,@CreatedAt
                         ,@CreatedFrom
                         ,@Post
                         ,@TransType
-                        ,@IsYearClosing,@BranchId
+                        ,@IsYearClosing
+                        ,@BranchId
+                        ,@Source
+                        ,@SourceId
                         ) 
                         select scope_Identity();
                         ";
@@ -460,12 +480,15 @@ WHERE  1=1
                     cmdInsert.Parameters.AddWithValue("@Remarks", vm.Remarks ?? Convert.DBNull);
                     cmdInsert.Parameters.AddWithValue("@IsActive", true);
                     cmdInsert.Parameters.AddWithValue("@IsArchive", false);
+                    cmdInsert.Parameters.AddWithValue("@IsApprove", false);
                     cmdInsert.Parameters.AddWithValue("@CreatedBy", vm.CreatedBy);
                     cmdInsert.Parameters.AddWithValue("@CreatedAt", Ordinary.DateToString(vm.CreatedAt));
                     cmdInsert.Parameters.AddWithValue("@CreatedFrom", vm.CreatedFrom);
                     cmdInsert.Parameters.AddWithValue("@Post", false);
                     cmdInsert.Parameters.AddWithValue("@TransType", vm.TransType ?? "PF");
                     cmdInsert.Parameters.AddWithValue("@BranchId", vm.BranchId);
+                    cmdInsert.Parameters.AddWithValue("@Source", vm.Source);
+                    cmdInsert.Parameters.AddWithValue("@SourceId", vm.SourceId);
 
 
 
@@ -513,7 +536,7 @@ WHERE  1=1
                 #endregion Commit
                 #region SuccessResult
 
-                if(dt.Rows.Count>0)
+                if (dt.Rows.Count > 0)
                 {
                     retResults[0] = "Fail";
                     retResults[1] = "Journal Already Created!!";
@@ -522,7 +545,7 @@ WHERE  1=1
                 {
                     retResults[0] = "Success";
                     retResults[1] = "Journal Created Successfully.";
-                }              
+                }
 
                 retResults[2] = transResult.ToString();
                 #endregion SuccessResult
@@ -679,7 +702,7 @@ END
 drop table #FiscalYear
 ";
 
-                
+
                 sqlText = sqlText.Replace("NetProfitYearEnds", TransType.ToLower() == "gf" ? "NetProfitGFYearEnds" : "NetProfitYearEnds");
 
                 SqlCommand cmdInsert = new SqlCommand(sqlText, currConn, transaction);
@@ -952,11 +975,11 @@ Delete from GLJournalDetails where GLJournalId=@GLJournalId
                     {
 
                         SqlCommand cmdInsert = new SqlCommand(sqlText, currConn, transaction);
-                        cmdInsert.Parameters.AddWithValue("@GLJournalId", GLJournalVM.Id);                    
+                        cmdInsert.Parameters.AddWithValue("@GLJournalId", GLJournalVM.Id);
                         var exeRes = cmdInsert.ExecuteNonQuery();
                         transResult = Convert.ToInt32(exeRes);
                     }
-                    #endregion SqlExecution                   
+                    #endregion SqlExecution
                 }
                 else
                 {
@@ -1280,7 +1303,183 @@ INSERT INTO GLJournalDetails (
             #endregion
             return retResults;
         }
+        public string[] Approve(string[] ids, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        {
+            #region Variables
+            string[] retResults = new string[6];
+            retResults[0] = "Fail";//Success or Fail
+            retResults[1] = "Fail";// Success or Fail Message
+            retResults[2] = "0";// Return Id
+            retResults[3] = "sqlText"; //  SQL Query
+            retResults[4] = "ex"; //catch ex
+            retResults[5] = "Loan"; //Method Name
+            SqlConnection currConn = null;
+            SqlTransaction transaction = null;
+            #endregion
+            try
+            {
+                #region open connection and transaction
+                #region New open connection and transaction
+                if (VcurrConn != null)
+                {
+                    currConn = VcurrConn;
+                }
+                if (Vtransaction != null)
+                {
+                    transaction = Vtransaction;
+                }
+                #endregion New open connection and transaction
+                if (currConn == null)
+                {
+                    currConn = _dbsqlConnection.GetConnection();
+                    if (currConn.State != ConnectionState.Open)
+                    {
+                        currConn.Open();
+                    }
+                }
+                if (transaction == null) { transaction = currConn.BeginTransaction("Post"); }
+                #endregion open connection and transaction
+                if (ids.Length >= 1)
+                {
+                    #region Update Settings
+                    for (int i = 0; i < ids.Length - 1; i++)
+                    {
+                        retResults = _cDal.FielApproved("GLJournals", "Id", ids[i], currConn, transaction);
+                        if (retResults[0].ToLower() == "fail")
+                        {
+                            throw new ArgumentNullException("GLJournals Approve", ids[i] + " could not Approve.");
+                        }
+                    }
+                    #endregion Update Settings
+                }
+                else
+                {
+                    throw new ArgumentNullException("GLJournals Approve - Could not found any item.", "");
+                }
 
+                #region Commit
+
+                if (Vtransaction == null && transaction != null)
+                {
+                    transaction.Commit();
+                }
+
+                retResults[0] = "Success";
+                retResults[1] = "Data Approved Successfully.";
+                #endregion
+            }
+            #region catch
+            catch (Exception ex)
+            {
+                retResults[0] = "Fail";//Success or Fail
+                retResults[4] = ex.Message; //catch ex
+                return retResults;
+            }
+            finally
+            {
+                if (VcurrConn == null)
+                {
+                    if (currConn != null)
+                    {
+                        if (currConn.State == ConnectionState.Open)
+                        {
+                            currConn.Close();
+                        }
+                    }
+                }
+            }
+            #endregion
+            return retResults;
+        }
+
+        public string[] Reject(string[] ids, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        {
+            #region Variables
+            string[] retResults = new string[6];
+            retResults[0] = "Fail";//Success or Fail
+            retResults[1] = "Fail";// Success or Fail Message
+            retResults[2] = "0";// Return Id
+            retResults[3] = "sqlText"; //  SQL Query
+            retResults[4] = "ex"; //catch ex
+            retResults[5] = "Loan"; //Method Name
+            SqlConnection currConn = null;
+            SqlTransaction transaction = null;
+            #endregion
+            try
+            {
+                #region open connection and transaction
+                #region New open connection and transaction
+                if (VcurrConn != null)
+                {
+                    currConn = VcurrConn;
+                }
+                if (Vtransaction != null)
+                {
+                    transaction = Vtransaction;
+                }
+                #endregion New open connection and transaction
+                if (currConn == null)
+                {
+                    currConn = _dbsqlConnection.GetConnection();
+                    if (currConn.State != ConnectionState.Open)
+                    {
+                        currConn.Open();
+                    }
+                }
+                if (transaction == null) { transaction = currConn.BeginTransaction("Post"); }
+                #endregion open connection and transaction
+                if (ids.Length >= 1)
+                {
+                    #region Update Settings
+                    for (int i = 0; i < ids.Length - 1; i++)
+                    {
+                        retResults = _cDal.FielReject("GLJournals", "Id", ids[i], currConn, transaction);
+                        if (retResults[0].ToLower() == "fail")
+                        {
+                            throw new ArgumentNullException("GLJournals Reject", ids[i] + " could not Reject.");
+                        }
+                    }
+                    #endregion Update Settings
+                }
+                else
+                {
+                    throw new ArgumentNullException("GLJournals Reject - Could not found any item.", "");
+                }
+
+                #region Commit
+
+                if (Vtransaction == null && transaction != null)
+                {
+                    transaction.Commit();
+                }
+
+                retResults[0] = "Success";
+                retResults[1] = "Data Rejected Successfully.";
+                #endregion
+            }
+            #region catch
+            catch (Exception ex)
+            {
+                retResults[0] = "Fail";//Success or Fail
+                retResults[4] = ex.Message; //catch ex
+                return retResults;
+            }
+            finally
+            {
+                if (VcurrConn == null)
+                {
+                    if (currConn != null)
+                    {
+                        if (currConn.State == ConnectionState.Open)
+                        {
+                            currConn.Close();
+                        }
+                    }
+                }
+            }
+            #endregion
+            return retResults;
+        }
 
         ////==================Report=================
         /// <summary>
@@ -1308,7 +1507,7 @@ INSERT INTO GLJournalDetails (
                     currConn.Open();
                 }
                 #endregion open connection and transaction
-                
+
                 #region sql statement
                 sqlText = @"
 select h.Id, h.Code TransactionCode,h.TransactionDate, jtt.Name TransactionType,h.JournalType,isnull(h.Remarks,'-')HeaderNarration,h.Post
@@ -1386,7 +1585,7 @@ where 1=1
         }
 
 
-        public List<GLJournalVM> SelectAll(int JournalType, string[] conditionFields = null, string[] conditionValues = null
+        public List<GLJournalVM> SelectAll(string branchId, int JournalType, string[] conditionFields = null, string[] conditionValues = null
                  , SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             #region Variables
@@ -1445,10 +1644,11 @@ gl.Id
 ,gl.LastUpdateAt
 ,gl.LastUpdateFrom
 ,gl.Post
+,gl.IsApprove
 from GLJournals gl left outer join EnumJournalType jt on gl.JournalType = jt.Id
  left outer join EnumJournalTransactionType jtt on gl.TransactionType= jtt.Id
 
-WHERE  1=1 AND IsArchive = 0
+WHERE  1=1 AND IsArchive = 0 and BranchId=@BranchId
 ";
 
                 if (JournalType > 0)
@@ -1462,6 +1662,7 @@ WHERE  1=1 AND IsArchive = 0
                 {
                     objComm.Parameters.AddWithValue("@Id", JournalType);
                 }
+                objComm.Parameters.AddWithValue("@BranchId", branchId);
                 SqlDataReader dr;
                 dr = objComm.ExecuteReader();
                 while (dr.Read())
@@ -1488,7 +1689,8 @@ WHERE  1=1 AND IsArchive = 0
                     vm.LastUpdateAt = Ordinary.StringToDate(dr["LastUpdateAt"].ToString());
                     vm.LastUpdateBy = dr["LastUpdateBy"].ToString();
                     vm.LastUpdateFrom = dr["LastUpdateFrom"].ToString();
-
+                    vm.IsApprove = Convert.ToBoolean(dr["IsApprove"]);
+                    vm.BranchId = branchId;
                     VMs.Add(vm);
                 }
                 dr.Close();

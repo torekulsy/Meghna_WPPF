@@ -32,11 +32,11 @@ namespace SymRepository.PF
             }
         }
 
-        public List<EnumJournalTransactionTypeVM> SelectAllJournalTransactionType(int Id = 0,string[] conditionFields = null, string[] conditionValues = null)
+        public List<EnumJournalTransactionTypeVM> SelectAllJournalTransactionType(int Id = 0, string[] conditionFields = null, string[] conditionValues = null)
         {
             try
             {
-                return new EnumJournalTypeDAL().SelectAllJournalTransactionType(Id, conditionFields , conditionValues);
+                return new EnumJournalTypeDAL().SelectAllJournalTransactionType(Id, conditionFields, conditionValues);
             }
             catch (Exception ex)
             {

@@ -45,5 +45,7 @@ namespace SymViewModel.PF
         public string COAType { get; set; }
 
 
+
+        public string BranchId { get; set; }
     }
 }

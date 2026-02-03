@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using SymWebUI.Areas.PF.Models;
 using SymRepository.Payroll;
 using System.Web;
+using SymServices.Common;
 
 namespace SymWebUI.Areas.PF.Controllers
 {
@@ -222,7 +223,7 @@ namespace SymWebUI.Areas.PF.Controllers
             string[] conditionFields = { "pfd.EmployeeId", "pfd.FiscalYearDetailId", "pfd.BranchId" };
             string[] conditionValues = { EmployeeId, fydid, Session["BranchId"].ToString() };
 
-            getAllData = _repo.SelectFiscalPeriodHeader(conditionFields, conditionValues);      
+            getAllData = _repo.SelectFiscalPeriodHeader(conditionFields, conditionValues);
 
             if (!string.IsNullOrEmpty(param.sSearch))
             {
@@ -284,7 +285,8 @@ namespace SymWebUI.Areas.PF.Controllers
                 ,c.TotalEmployeeValue.ToString()
                 ,c.TotalEmployerValue.ToString()
                 ,c.TotalPF.ToString()
-                , c.Post?"Yes":"No"
+                , c.Post?"Posted":"Not Posted"
+                , c.IsApprove?"Approve":"Not Approve"
             };
             return Json(new
             {
@@ -336,7 +338,7 @@ namespace SymWebUI.Areas.PF.Controllers
             // Return the result as a JSON response
             return Json(mgs, JsonRequestBehavior.AllowGet);
         }
-        
+
         /// <summary>
         /// Created: 10 Apr 2025  
         /// Created By: Md Torekul Islam  
@@ -375,7 +377,7 @@ namespace SymWebUI.Areas.PF.Controllers
                 return Json("Error: {ex.Message}", JsonRequestBehavior.AllowGet);
             }
         }
-        
+
         [Authorize(Roles = "Admin")]
         public JsonResult GetPFDetail(string fydid)
         {
@@ -466,7 +468,7 @@ namespace SymWebUI.Areas.PF.Controllers
                 throw new Exception("An error occurred while generating the PF Detail report.", ex);
             }
         }
-        
+
         /// <summary>
         /// Created: 10 Apr 2025  
         /// Created By: Md Torekul Islam  
@@ -528,7 +530,7 @@ namespace SymWebUI.Areas.PF.Controllers
                 throw new Exception("An error occurred while generating the PF Contribution Details Report.", ex);
             }
         }
-        
+
         /// <summary>
         /// Created: 10 Apr 2025  
         /// Created By: Md Torekul Islam  
@@ -586,7 +588,7 @@ namespace SymWebUI.Areas.PF.Controllers
                 throw;
             }
         }
-        
+
         /// <summary>
         ///  Created: 01 Mar 2025 
         /// Created By : Md Torekul Islam
@@ -672,7 +674,7 @@ namespace SymWebUI.Areas.PF.Controllers
                 throw;
             }
         }
-        
+
         private FileStreamResult RenderReportAsPDF(ReportDocument rptDoc)
         {
             Stream stream = rptDoc.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
@@ -753,7 +755,7 @@ namespace SymWebUI.Areas.PF.Controllers
                 throw;
             }
         }
-        
+
         private void ExcelSheetFormat(DataTable dt, ExcelWorksheet workSheet, string[] ReportHeaders)
         {
 
@@ -907,7 +909,7 @@ namespace SymWebUI.Areas.PF.Controllers
                 throw;
             }
         }
-        
+
         public ActionResult ImportExportPF()
         {
             SymUserRoleRepo _reposur = new SymUserRoleRepo();
@@ -966,11 +968,16 @@ namespace SymWebUI.Areas.PF.Controllers
                 {
                     System.IO.File.Delete(fullPath + FileName);
                 }
+                string IsContributionNotSame = new SettingDAL().settingValue("PF", "IsContributionNotSame");
+                if (IsContributionNotSame == "Y")
+                {
+                    dt = _repo.ExportExcelFile_PF(fullPath, FileName, ProjectId, DepartmentId, SectionId, DesignationId, CodeF, CodeT, fid, Orderby, BranchId);
+                }
+                else
+                {
+                    dt = _repo.ExportExcelFilePF(fullPath, FileName, ProjectId, DepartmentId, SectionId, DesignationId, CodeF, CodeT, fid, Orderby, BranchId);
+                }
 
-                // Fetch PF contribution data from repository
-                dt = _repo.ExportExcelFilePF(fullPath, FileName, ProjectId, DepartmentId, SectionId, DesignationId, CodeF, CodeT, fid, Orderby, BranchId);
-
-                // Create Excel package using EPPlus
                 ExcelPackage excel = new ExcelPackage();
                 var workSheet = excel.Workbook.Worksheets.Add("Contribution");
 
@@ -1092,7 +1099,7 @@ namespace SymWebUI.Areas.PF.Controllers
             }
         }
 
-        public ActionResult InsertAutoJournal(string TransactionMonth, string TransactionForm, string TransactionCode)
+        public ActionResult InsertAutoJournal(string TransactionMonth, string TransactionForm, string TransactionCode, int TransactionId)
         {
             string[] result = new string[6];
             string BranchId = Session["BranchId"].ToString();
@@ -1108,11 +1115,10 @@ namespace SymWebUI.Areas.PF.Controllers
                 BranchId = Session["BranchId"].ToString()
             };
 
-            result = _repo.InsertAutoJournal(TransactionMonth, TransactionForm, TransactionCode, BranchId, vm);
+            result = _repo.InsertAutoJournal(TransactionMonth, TransactionForm, TransactionCode, TransactionId, BranchId, vm);
             Session["result"] = result[0] + "~" + result[1];
 
             return View("~/Areas/PF/Views/PFDetail/IndexFiscalPeriod.cshtml");
         }
-
     }
 }

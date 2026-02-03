@@ -2813,7 +2813,7 @@ order by SectionOrderNo ";
             #endregion
         }
 
-        public string[] AutoJournalSave(string TransactionMonth, string TransactionForm, string TransactionCode, string BranchId, SqlConnection currConn, SqlTransaction transaction, ShampanIdentityVM auditvm)
+        public string[] AutoJournalSave(string TransactionMonth, string TransactionForm, string TransactionCode, int TransactionId, string BranchId, SqlConnection currConn, SqlTransaction transaction, ShampanIdentityVM auditvm)
         {
             if (currConn == null)
             {
@@ -2839,15 +2839,16 @@ order by SectionOrderNo ";
             DataTable dtd = new DataTable();
             adapterd.Fill(dtd);
 
-           
 
-            string Journal = @"Select JournalFor, JournalName,Nature,GroupName,COAID from AutoJournalSetup ";
+
+            string Journal = @"Select JournalFor, JournalName,Nature,GroupName,COAID from AutoJournalSetup where BranchId=@BranchId";
             SqlCommand cmdj = new SqlCommand(Journal, currConn, transaction);
             cmdj.Parameters.AddWithValue("JournalFor", TransactionForm);
+            cmdj.Parameters.AddWithValue("BranchId", BranchId);
             SqlDataAdapter adapterj = new SqlDataAdapter(cmdj);
             DataTable dtj = new DataTable();
             adapterj.Fill(dtj);
-            if(dtj.Rows.Count>0)
+            if (dtj.Rows.Count > 0)
             {
                 EmployeeCOAID = dtj.Rows[0]["COAID"].ToString();
                 EmployerCOAID = dtj.Rows[1]["COAID"].ToString();
@@ -2864,21 +2865,25 @@ order by SectionOrderNo ";
                 string id = @"Select SUM(pd.EmployeePFValue) EmployeePFValue, SUM(pd.EmployeerPFValue) EmployeerPFValue from PFDetails pd
                              LEFT OUTER JOIN PFHeader ph on ph.id=pd.PFHeaderId where ph.Code=@Code";
                 SqlCommand cmdid = new SqlCommand(id, currConn, transaction);
-                cmdid.Parameters.AddWithValue("@Code", TransactionCode);               
+                cmdid.Parameters.AddWithValue("@Code", TransactionCode);
                 SqlDataAdapter adapterid = new SqlDataAdapter(cmdid);
                 DataTable dtpf = new DataTable();
                 adapterid.Fill(dtpf);
 
                 GLJournalVM vmj = new GLJournalVM
                 {
+                    Source = TransactionCode,
+                    SourceId = Convert.ToInt32(TransactionId),
+
+
                     Id = 1,
                     CreatedAt = DateTime.Now.ToString(),
                     CreatedBy = "admin",
-                    CreatedFrom = "",                   
+                    CreatedFrom = "",
                     TransactionType = 31,
                     JournalType = 1,
                     TransType = "PF",
-                 
+
 
                     GLJournalDetails = new List<GLJournalDetailVM>
                     {
@@ -2908,12 +2913,13 @@ order by SectionOrderNo ";
                         }
                     }
                 };
-                vmj.Code = TransactionCode;
+                vmj.Source = TransactionCode;
+                vmj.SourceId = TransactionId;
                 vmj.TransactionDate = dtd.Rows[0][0].ToString();
                 vmj.BranchId = BranchId;
                 vmj.Remarks = "Contribution Employee & Employer";
                 GLJournalDAL glJournalDal = new GLJournalDAL();
-                retResults = glJournalDal.Insert(vmj);             
+                retResults = glJournalDal.Insert(vmj);
             }
 
             #region Results
@@ -3034,5 +3040,109 @@ order by SectionOrderNo ";
         }
 
         #endregion Methods
+
+        public DataTable ExportExcelFile_PF(string Filepath, string FileName, string ProjectId, string DepartmentId, string SectionId, string DesignationId, string CodeF, string CodeT, int fid, string Orderby, string BranchId)
+        {
+            DataTable dt = new DataTable();
+            string[] results = new string[6];
+            try
+            {
+                #region Fiscal Period
+                FiscalYearDAL fdal = new FiscalYearDAL();
+                FiscalYearDetailVM fyDVM = new FiscalYearDetailVM();
+                fyDVM = fdal.FYPeriodDetail(fid, null, null).FirstOrDefault();
+                var fname = fyDVM.PeriodName;
+
+                string PeriodEnd = fyDVM.PeriodEnd;
+                string PeriodStart = fyDVM.PeriodStart;
+                #endregion
+
+                #region Variables
+                SqlConnection currConn = null;
+                SqlConnection currConnpf = null;
+                string sqlText = "";
+                int j = 2;
+                #endregion
+
+                #region open connection and transaction
+                currConn = _dbsqlConnection.GetConnection();
+                if (currConn.State != ConnectionState.Open)
+                {
+                    currConn.Open();
+                }
+                currConnpf = _dbsqlConnection.GetConnection();
+                if (currConnpf.State != ConnectionState.Open)
+                {
+                    currConnpf.Open();
+                }
+
+                #endregion open connection and transaction
+
+                #region sql statement
+                sqlText = @"
+                 Select ve.Code EmpCode, ve.EmpName, JoinDate, 0 GradeSL,0 
+                 Grade,Designation,Department,ve.UnitName,ve.BasicSalary, ISNULL((ve.BasicSalary*.1),0) EmployeeContribution,ISNULL((ve.BasicSalary*.1),0) EmployerContribution,ISNULL((ve.BasicSalary*.1),0) Loan,0 FYDId 
+                 from ViewEmployeeInformation ve Left Outer Join PFDetails pd on pd.EmployeeId=ve.EmployeeId and FiscalYearDetailId=@FiscalYearDetailId  where 1=1 AND ve.IsActive=1 AND ve.IsArchive=0 ";
+
+                //if (ProjectId != "0_0" && ProjectId != "0" && ProjectId != "" && ProjectId != "null" && ProjectId != null)
+                //    sqlText += @" and ve.ProjectId='" + ProjectId + "'";
+                if (DepartmentId != "0_0" && DepartmentId != "0" && DepartmentId != "" && DepartmentId != "null" && DepartmentId != null)
+                    sqlText += @" and ve.DepartmentId='" + DepartmentId + "'";
+                //if (SectionId != "0_0" && SectionId != "0" && SectionId != "" && SectionId != "null" && SectionId != null)
+                //    sqlText += @" and ve.SectionId='" + SectionId + "'";
+                if (DesignationId != "0_0" && DesignationId != "0" && DesignationId != "" && DesignationId != "null" && DesignationId != null)
+                    sqlText += @" and ve.DesignationId='" + DesignationId + "'";
+                if (CodeF != "0_0" && CodeF != "0" && CodeF != "" && CodeF != "null" && CodeF != null)
+                    sqlText += @" and ve.Code >='" + CodeF + "'";
+                if (CodeT != "0_0" && CodeT != "0" && CodeT != "" && CodeT != "null" && CodeT != null)
+                    sqlText += @" and ve.Code<='" + CodeT + "'";
+                if (BranchId != "0_0" && CodeT != "0" && BranchId != "" && BranchId != "null" && BranchId != null)
+                    sqlText += @" and ve.BranchId='" + BranchId + "'";
+
+                if (Orderby == "CODE")
+                    sqlText += " ORDER BY  EmpCode";
+
+                SqlCommand objComm = new SqlCommand();
+                objComm.Connection = currConn;
+                objComm.CommandText = sqlText;
+
+                objComm.CommandType = CommandType.Text;
+                SqlDataAdapter da = new SqlDataAdapter(objComm);
+                da.SelectCommand.Parameters.AddWithValue("@FiscalYearDetailId", fid);
+
+                da.Fill(dt);
+                dt.Columns.Add("Fiscal Period");
+                dt.Columns.Add("Salary Period");
+                // dt.Columns.Add("Type");
+                dt.Columns.Remove("GradeSl");
+                dt.Columns.Remove("JoinDate");
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    row["Fiscal Period"] = fname;
+                    row["Salary Period"] = fname;
+                    // row["Type"] = "";
+                    row["FYDId"] = fid;
+                    // row["EDId"] = 0;
+                }
+                #endregion
+
+                #region Value Round
+
+                string[] columnNames = { "Amount" };
+
+                dt = Ordinary.DtValueRound(dt, columnNames);
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                results[4] = ex.Message.ToString(); //catch ex
+                //return results;
+                throw ex;
+            }
+            return dt;
+        }
+
     }
 }

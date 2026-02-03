@@ -22,8 +22,8 @@ namespace SymServices.PF
 
         #region Methods
 
-        public List<AutoJournalSetupVM> SelectAll(int Id = 0, string[] conditionFields = null, string[] conditionValues = null
-             , SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
+        public List<AutoJournalSetupVM> SelectAll(string branchId, int Id = 0, string[] conditionFields = null, string[] conditionValues = null
+            , SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             #region Variables
             SqlConnection currConn = null;
@@ -79,7 +79,7 @@ from AutoJournalSetup a
 
 left join EnumJournalFor b on a.JournalFor = b.Id
 left join COAs c on a.COAID = c.Id
-WHERE  1=1 and a.IsActive=1
+WHERE  1=1 and a.IsActive=1 and a.BranchId= @BranchId
 ";
 
                 if (Id > 0)
@@ -87,40 +87,13 @@ WHERE  1=1 and a.IsActive=1
                     sqlText += @" and a.Id=@Id";
                 }
 
-                string cField = "";
-                if (conditionFields != null && conditionValues != null && conditionFields.Length == conditionValues.Length)
-                {
-                    for (int i = 0; i < conditionFields.Length; i++)
-                    {
-                        if (string.IsNullOrWhiteSpace(conditionFields[i]) || string.IsNullOrWhiteSpace(conditionValues[i]))
-                        {
-                            continue;
-                        }
-                        cField = conditionFields[i].ToString();
-                        cField = Ordinary.StringReplacing(cField);
-                        sqlText += " AND " + conditionFields[i] + "=@" + cField;
-                    }
-                }
-
                 SqlCommand objComm = new SqlCommand(sqlText, currConn, transaction);
-                if (conditionFields != null && conditionValues != null && conditionFields.Length == conditionValues.Length)
-                {
-                    for (int j = 0; j < conditionFields.Length; j++)
-                    {
-                        if (string.IsNullOrWhiteSpace(conditionFields[j]) || string.IsNullOrWhiteSpace(conditionValues[j]))
-                        {
-                            continue;
-                        }
-                        cField = conditionFields[j].ToString();
-                        cField = Ordinary.StringReplacing(cField);
-                        objComm.Parameters.AddWithValue("@" + cField, conditionValues[j]);
-                    }
-                }
 
                 if (Id > 0)
                 {
                     objComm.Parameters.AddWithValue("@Id", Id);
                 }
+                objComm.Parameters.AddWithValue("@BranchId", branchId);
                 SqlDataReader dr;
                 dr = objComm.ExecuteReader();
                 while (dr.Read())
@@ -138,6 +111,7 @@ WHERE  1=1 and a.IsActive=1
                     vm.LastUpdateAt = Ordinary.StringToDate(dr["LastUpdateAt"].ToString());
                     vm.LastUpdateBy = dr["LastUpdateBy"].ToString();
                     vm.LastUpdateFrom = dr["LastUpdateFrom"].ToString();
+                    vm.BranchId = branchId;
                     VMs.Add(vm);
                 }
                 dr.Close();
@@ -168,6 +142,7 @@ WHERE  1=1 and a.IsActive=1
             #endregion
             return VMs;
         }
+
 
         public string[] Insert(AutoJournalSetupVM vm, SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
@@ -233,6 +208,7 @@ INSERT INTO AutoJournalSetup(
 ,CreatedBy
 ,CreatedAt
 ,CreatedFrom
+,BranchId
 ) VALUES (
  @JournalFor
 ,@JournalName
@@ -244,19 +220,21 @@ INSERT INTO AutoJournalSetup(
 ,@CreatedBy
 ,@CreatedAt
 ,@CreatedFrom
+,@BranchId
 ) 
 ";
                     SqlCommand cmdInsert = new SqlCommand(sqlText, currConn, transaction);
-                    cmdInsert.Parameters.AddWithValue("JournalFor", vm.JournalFor);
-                    cmdInsert.Parameters.AddWithValue("JournalName", vm.JournalName);
-                    cmdInsert.Parameters.AddWithValue("Nature", vm.Nature);
-                    cmdInsert.Parameters.AddWithValue("GroupName", vm.GroupName);
-                    cmdInsert.Parameters.AddWithValue("COAID", vm.COAID);
-                    cmdInsert.Parameters.AddWithValue("IsActive", true);
-                    cmdInsert.Parameters.AddWithValue("IsArchive", false);
-                    cmdInsert.Parameters.AddWithValue("CreatedBy", vm.CreatedBy);
-                    cmdInsert.Parameters.AddWithValue("CreatedAt", vm.CreatedAt);
-                    cmdInsert.Parameters.AddWithValue("CreatedFrom", vm.CreatedFrom);
+                    cmdInsert.Parameters.AddWithValue("@JournalFor", vm.JournalFor);
+                    cmdInsert.Parameters.AddWithValue("@JournalName", vm.JournalName);
+                    cmdInsert.Parameters.AddWithValue("@Nature", vm.Nature);
+                    cmdInsert.Parameters.AddWithValue("@GroupName", vm.GroupName);
+                    cmdInsert.Parameters.AddWithValue("@COAID", vm.COAID);
+                    cmdInsert.Parameters.AddWithValue("@IsActive", true);
+                    cmdInsert.Parameters.AddWithValue("@IsArchive", false);
+                    cmdInsert.Parameters.AddWithValue("@CreatedBy", vm.CreatedBy);
+                    cmdInsert.Parameters.AddWithValue("@CreatedAt", vm.CreatedAt);
+                    cmdInsert.Parameters.AddWithValue("@CreatedFrom", vm.CreatedFrom);
+                    cmdInsert.Parameters.AddWithValue("@BranchId", vm.BranchId);
 
                     var exeRes = cmdInsert.ExecuteNonQuery();
                     transResult = Convert.ToInt32(exeRes);

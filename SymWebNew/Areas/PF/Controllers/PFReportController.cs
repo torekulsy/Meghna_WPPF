@@ -1950,33 +1950,34 @@ namespace SymWebUI.Areas.PF.Controllers
                  DataTable dt1 = new DataTable();
                  DataSet ds = new DataSet();
                  vm.TransType = AreaTypePFVM.TransType;
-               
+                 vm.BranchId = Session["BranchId"].ToString();
+
                  ds = _repo.IFRSReports(vm);
                  dt = ds.Tables[0];
-              
+
                  CompanyRepo _CompanyRepo = new CompanyRepo();
                  CompanyVM cvm = _CompanyRepo.SelectAll().FirstOrDefault();
-                  FiscalYearRepo fyrepo = new FiscalYearRepo();
+                 FiscalYearRepo fyrepo = new FiscalYearRepo();
 
-                  //vm.DateFrom = fyrepo.FYPeriodDetail(vm.MonthFrom).FirstOrDefault().PeriodName;
-                  //vm.DateTo = fyrepo.FYPeriodDetail(vm.MonthTo).FirstOrDefault().PeriodName;
+                 //vm.DateFrom = fyrepo.FYPeriodDetail(vm.MonthFrom).FirstOrDefault().PeriodName;
+                 //vm.DateTo = fyrepo.FYPeriodDetail(vm.MonthTo).FirstOrDefault().PeriodName;
 
                  ReportHead = "";
                  if (dt.Rows.Count > 0)
                  {
-                     if(vm.ReportType.ToUpper()=="BS")
+                     if (vm.ReportType.ToUpper() == "BS")
                      {
                          //ReportHead = "Balance Sheet";
                          fileName = "rptIFRSReportBS.rpt";
-                        dt1 = ds.Tables[1];
-                        vm.DateFrom = Ordinary.StringToDate(dt1.Rows[0]["FirstEnd"].ToString());
-                        vm.YearFrom = dt1.Rows[0]["FirstYear"].ToString();
-                        if (vm.YearFrom=="1900")
-                        {
-                            vm.YearFrom = (Convert.ToInt32(dt1.Rows[0]["LastYear"]) - 1).ToString();
-                        }
-                        vm.DateTo = Ordinary.StringToDate(dt1.Rows[0]["LastEnd"].ToString());
-                        vm.YearTo = dt1.Rows[0]["LastYear"].ToString();
+                         dt1 = ds.Tables[1];
+                         vm.DateFrom = Ordinary.StringToDate(dt1.Rows[0]["FirstEnd"].ToString());
+                         vm.YearFrom = dt1.Rows[0]["FirstYear"].ToString();
+                         if (vm.YearFrom == "1900")
+                         {
+                             vm.YearFrom = (Convert.ToInt32(dt1.Rows[0]["LastYear"]) - 1).ToString();
+                         }
+                         vm.DateTo = Ordinary.StringToDate(dt1.Rows[0]["LastEnd"].ToString());
+                         vm.YearTo = dt1.Rows[0]["LastYear"].ToString();
 
                      }
                      else if (vm.ReportType.ToUpper() == "IS")
@@ -1991,21 +1992,21 @@ namespace SymWebUI.Areas.PF.Controllers
                          {
                              vm.YearFrom = (Convert.ToInt32(dt1.Rows[0]["LastYear"]) - 1).ToString();
                          }
-                         vm.DateFrom = Ordinary.StringToDate(dt1.Rows[0]["FirstEnd"].ToString()); 
+                         vm.DateFrom = Ordinary.StringToDate(dt1.Rows[0]["FirstEnd"].ToString());
                          vm.DateTo = Ordinary.StringToDate(dt1.Rows[0]["LastEnd"].ToString());
                          vm.YearTo = dt1.Rows[0]["LastYear"].ToString();
 
                          vm.PFReport1VM.FirstNetProfit = Math.Abs(vm.PFReport1VM.FirstNetProfit);
                          vm.PFReport1VM.LastNetProfit = Math.Abs(vm.PFReport1VM.LastNetProfit);
                      }
-                     else if (vm.ReportType.ToUpper() == "TB" || vm.ReportType.ToUpper() == "NC")                     
+                     else if (vm.ReportType.ToUpper() == "TB" || vm.ReportType.ToUpper() == "NC")
                      {
                          //ReportHead = "Trial Balance";
                          fileName = "rptIFRSReportTB.rpt";
                          if (vm.ReportType.ToUpper() == "NC")
                          {
                              fileName = "rptIFRSReportNC.rpt";
-                             
+
                          }
 
                          dt1 = ds.Tables[1];
@@ -2021,7 +2022,7 @@ namespace SymWebUI.Areas.PF.Controllers
                          //vm.PFReport1VM.FirstNetProfit = Math.Abs(vm.PFReport1VM.FirstNetProfit);
                          //vm.PFReport1VM.LastNetProfit = Math.Abs(vm.PFReport1VM.LastNetProfit);
                      }
-                     
+
                  }
                  dt.TableName = "dtIFRSReport";
                  rptLocation = AppDomain.CurrentDomain.BaseDirectory + @"Files\ReportFiles\PF\" + fileName;
@@ -2044,9 +2045,9 @@ namespace SymWebUI.Areas.PF.Controllers
                  _vCommonFormMethod.FormulaField(doc, crFormulaF, "YearTo", vm.YearTo);
                  _vCommonFormMethod.FormulaField(doc, crFormulaF, "Address", cvm.Address);
                  _vCommonFormMethod.FormulaField(doc, crFormulaF, "CompanyName", cvm.Name);
-                 //_vCommonFormMethod.FormulaField(doc, crFormulaF, "BranchName", Session["BranchName"].ToString());
+                 _vCommonFormMethod.FormulaField(doc, crFormulaF, "BranchName", Session["BranchName"].ToString());
 
-                 
+
                  var rpt = RenderReportAsPDF(doc);
                  doc.Close();
                  return rpt;

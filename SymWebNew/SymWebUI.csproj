@@ -548,9 +548,6 @@
       <DependentUpon>rptEmployeeImageInfo.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Files\ReportFiles\PF\rptEmployeeLoanClosed.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Files\ReportFiles\PF\rptEmployeeLoanClosed1.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -879,6 +876,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>rptWPPFProfitDistribution.rpt</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Files\ReportFiles\PF\rptWPPFReport.cs">
       <SubType>Component</SubType>

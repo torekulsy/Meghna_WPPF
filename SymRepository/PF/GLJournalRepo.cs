@@ -18,7 +18,7 @@ namespace SymRepository.PF
 
                 return glJournalDal.Insert(vm);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -37,13 +37,13 @@ namespace SymRepository.PF
             }
         }
 
-        public List<GLJournalVM> SelectAll(int JournalType, string[] conditionFields = null, string[] conditionValues = null
+        public List<GLJournalVM> SelectAll(string branchId, int JournalType, string[] conditionFields = null, string[] conditionValues = null
     , SqlConnection VcurrConn = null, SqlTransaction Vtransaction = null)
         {
             try
             {
 
-                return glJournalDal.SelectAll(JournalType, conditionFields, conditionValues);
+                return glJournalDal.SelectAll(branchId, JournalType, conditionFields, conditionValues);
             }
             catch (Exception ex)
             {
@@ -89,11 +89,33 @@ namespace SymRepository.PF
                 throw ex;
             }
         }
+        public string[] Approve(string[] ids)
+        {
+            try
+            {
+                return new GLJournalDAL().Approve(ids);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string[] Reject(string[] ids)
+        {
+            try
+            {
+                return new GLJournalDAL().Reject(ids);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable Report(GLJournalVM vm, string[] conditionFields = null, string[] conditionValues = null)
         {
             try
             {
-                return  glJournalDal.Report(vm, conditionFields, conditionValues);
+                return glJournalDal.Report(vm, conditionFields, conditionValues);
             }
             catch (Exception ex)
             {

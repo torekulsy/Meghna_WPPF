@@ -226,7 +226,7 @@ namespace SymWebUI.Controllers
         [AllowAnonymous]
         public ActionResult Login(UserLogsVM vm, string returnUrl)
         {
-           // FileLogger.Log("LoginStart", this.GetType().Name, "LoginStart");
+            // FileLogger.Log("LoginStart", this.GetType().Name, "LoginStart");
             #region WebClient
 
             //checkThread(Work);
@@ -278,7 +278,6 @@ namespace SymWebUI.Controllers
 
                 string[] retResults = new string[2];
                 vm.Password = Ordinary.Encrypt(vm.Password, true);
-                vm.BranchId = 10;
                 Tuple<bool, UserLogsVM> result = userRepo.UserLogIn(vm);
                 CompanyRepo compRepo = new CompanyRepo();
                 CompanyVM company = compRepo.SelectAll().FirstOrDefault();
@@ -392,7 +391,7 @@ namespace SymWebUI.Controllers
                                                                             , false
                                                                             , false
                                                                             , false
-                                                                            , false
+                                                                            , result.Item2.IsApprove
                                                                             , false
                                                                             , false
 
@@ -435,23 +434,27 @@ namespace SymWebUI.Controllers
                     }
                     else if (result.Item2.IsAdmin)
                     {
-                        Session["BranchId"] =10;
-                        //return Redirect("/Company");
-                         return Redirect("/Common/Home");
+                        Session["BranchId"] = vm.BranchId;
+                        // return Redirect("/Company");
+                        return Redirect("/Common/Home");
                     }
-                  
+
                     else
                     {
-                        return Redirect("/");
+                        Session["BranchId"] = vm.BranchId;
+                        // return Redirect("/Company");
+                        return Redirect("/PF/Home");
+
+                        //return Redirect("/");
                     }
                     #endregion
 
                 }
                 else
                 {
-                    retResults[0] = "Fail"; 
+                    retResults[0] = "Fail";
                     retResults[1] = "User Name or Password is invalid!";
-                    Session["result"] = retResults[0] + "~" + retResults[1];                  
+                    Session["result"] = retResults[0] + "~" + retResults[1];
                     return View("Index", vm);
                 }
             }

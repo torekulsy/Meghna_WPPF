@@ -39,7 +39,8 @@ namespace SymWebUI.Areas.PF.Controllers
 
         public ActionResult _index(JQueryDataTableParamModel param)
         {
-            var getAllData = _repo.SelectAll();
+            var branchId = Session["BranchId"].ToString();
+            var getAllData = _repo.SelectAll(branchId);
             IEnumerable<AutoJournalSetupVM> filteredData;
 
             if (!string.IsNullOrEmpty(param.sSearch))
@@ -100,6 +101,8 @@ namespace SymWebUI.Areas.PF.Controllers
             ShampanIdentity identity = (ShampanIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                string BranchId = Session["BranchId"].ToString();
+                vm.BranchId = BranchId;
                 if (vm.Operation.ToLower() == "add")
                 {
                     vm.CreatedAt = DateTime.Now.ToString("yyyyMMddHHmmss");
